@@ -36,7 +36,7 @@ if (isset($_SESSION['username'])) {
 	//display the reminder as read-only
 	
 
-	if (isset($_GET['ID'])) $reminderID = $_GET['ID'];
+	if (isset($_GET['ID'])) $reminderID = (int)$_GET['ID'];
 
 	if ($reminderID=="new") {
 		$where="sequence=" . $timestamp;
