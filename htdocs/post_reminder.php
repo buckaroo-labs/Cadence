@@ -1,5 +1,9 @@
 <?php
 
+
+//In theory, the SQLBuilder class will sanitize 
+//	all the POST variables used as column data
+
 function calculate_weekdays() {
 	global $sqlb;
 	$daysOfWeek="";
@@ -165,7 +169,7 @@ if ($_POST['ID']=="new") {
 		$sqlb = new SQLBuilder("UPDATE");
 		$sqlb->setTableName("reminder");
 		//oops! this part is important:
-		$sqlb->addWhere("id='" .  $_POST['ID']. "'");
+		$sqlb->addWhere("id='" .  (int) $_POST['ID']. "'");
 		$sqlb->addWhere("owner='" .  $_SESSION['username']. "'");
 		
 		
@@ -212,6 +216,6 @@ if ($_POST['ID']=="new") {
 
 } //not new
 
-$reminderID = $_POST['ID'];
+$reminderID = (int) $_POST['ID'];
 
 ?>
