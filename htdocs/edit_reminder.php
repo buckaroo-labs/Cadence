@@ -4,13 +4,18 @@ $pagetitle="Reminders | Lithium";
 $headline = '<h1>Lithium</h1><h3>One step at a time</h3>' ;
 include "Hydrogen/pgTemplate.php";
 require_once 'Hydrogen/libDebug.php';
-$this_page="new_reminder.php"
+
 ?>
 
 <!-- Main content: shift it to the right by 250 pixels when the sidebar is visible -->
 <div class="w3-main w3-container w3-padding-16" style="margin-left:250px">
 
-<?php include 'Hydrogen/elemLogoHeadline.php';  
+<?php 
+
+//unset these to remove the elements from the page, but include elemLogoHeadline to push the main section below the nav bar. Find a cleaner way of doing this later.
+unset ($logo_image);
+unset ($headline);
+include 'Hydrogen/elemLogoHeadline.php'; 
 
 $rem_id=0;
 $new=false;
@@ -42,51 +47,13 @@ if (isset($_SESSION['username'])) {
 
 	?>
 	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.0/jquery.min.js"></script>
-	<script>
-	$(document).ready(function(){
-
-	  $("#StepOneToTwo").click(function(){
-		$("#StepOne").hide();
-		$("#StepTwo").show();
-	  });
-	  $("#StepTwoToOne").click(function(){
-		$("#StepTwo").hide();
-		$("#StepOne").show();
-	  });
-	  $("#StepThreeToTwo").click(function(){
-		$("#StepThree").hide();
-		$("#StepTwo").show();
-	  });
-	  $("#StepTwoToThree").click(function(){
-		$("#StepTwo").hide();
-		$("#StepThree").show();
-	  });  
-	  if($(window).width() < 850){
-			$("#StepTwo").hide();
-			$("#StepThree").hide();
-	  }
-	});
-
-	$(window).resize(function() {
-		if( $(this).width() < 850 ) {
-			$("#StepOne").show();
-			$("#StepTwo").hide();
-			$("#StepThree").hide();
-			$(".StepNav").show();
-		} else {
-			$("#StepOne").show();
-		   $("#StepTwo").show();
-			$("#StepThree").show();
-			$(".StepNav").hide();
-		}
-	});
-	</script>
+	
 	
 	<?php 
 		if ($new) {
 			echo ('<h2>New reminder</h2>'); 
 			$startdatestr = date("Y-m-d");
-			$starttimestr = date("H:i:s");
+			$starttimestr = date("H:i");
 			$priority =3;
 			$recur_float = 1;
 			$recur_units = 1;
@@ -100,18 +67,18 @@ if (isset($_SESSION['username'])) {
 			$days_of_week="_MTWtFSs";
 			$season_start="1";
 			$season_end="365";
-			$tod_start="00:00:00";
-			$tod_end="23:59:59";
+			$tod_start="00:00";
+			$tod_end="23:59";
 		} else {
 			echo ('<h2>Edit reminder</h2>');
-			$result = $dds->setSQL("SELECT * FROM reminder WHERE id=" . $rem_id);
+			$result = $dds->setSQL("SELECT * FROM reminder WHERE id=" . $rem_id . " AND owner ='" . $_SESSION['username'] . "'");
 			$remdata = $dds->getNextRow("labeled");
 			$startdatestr = date("Y-m-d",strtotime($remdata['start_date']));
-			$starttimestr = date("H:i:s",strtotime($remdata['start_date']));
+			$starttimestr = date("H:i",strtotime($remdata['start_date']));
 			if (isset($remdata['end_date'])) {
 				if (!is_null($remdata['end_date'])) {
 				$enddatestr = date("Y-m-d",strtotime($remdata['end_date']));
-				$endtimestr = date("H:i:s",strtotime($remdata['end_date']));
+				$endtimestr = date("H:i",strtotime($remdata['end_date']));
 				}
 			}
 			$priority = $remdata['priority'];
@@ -149,9 +116,9 @@ if (isset($_SESSION['username'])) {
 				if ($tempminute > 59) $tempminute=59;
 				if ($tempminute < 10) $tempminute= "0" . $tempminute;
 				if ($temphour < 10) $temphour= "0" . $temphour;
-				$tod_start= $temphour . ":" . $tempmin . ":00";
+				$tod_start= $temphour . ":" . $tempmin ;
 			} else {
-				$tod_start= "00:00:00";
+				$tod_start= "00:00";
 			}
 			if (!is_null($remdata['day_end'])) {
 				$blackout_hours=true;
@@ -162,9 +129,9 @@ if (isset($_SESSION['username'])) {
 				if ($tempminute > 59) $tempminute=59;
 				if ($tempminute < 10) $tempminute= "0" . $tempminute;
 				if ($temphour < 10) $temphour= "0" . $temphour;
-				$tod_end= $temphour . ":" . $tempmin . ":00";
+				$tod_end= $temphour . ":" . $tempmin ;
 			} else {
-				$tod_end= "23:59:59";
+				$tod_end= "23:59";
 			}
 		}
 	?>
@@ -218,7 +185,6 @@ if (isset($_SESSION['username'])) {
 					<input name="notes" class="w3-input w3-border" type="text"  <?php if(!$new) echo ' value="' . $remdata['notes'] . '"'; ?> >
 				 </p>
 				  
-				 <button id="StepOneToTwo" class="w3-btn w3-hide-large  StepNav">More</button>
 			</div>
 		  
 			<div id="StepTwo"  class="w3-container w3-mobile w3-cell ">
@@ -277,10 +243,8 @@ if (isset($_SESSION['username'])) {
 						</select>  <br>after it starts
 					</p>
 				</div>
-				<button id="StepTwoToOne" class="w3-btn w3-hide-large StepNav">Back</button>
-				<button id="StepTwoToThree" class="w3-btn w3-hide-large  StepNav">More</button>
-			</div>
-		  
+		</div>
+		  <br>
 			<div id="StepThree" class="w3-container w3-mobile w3-cell ">
 				<div id="DaysOfWeek" class="w3-container w3-card-4 w3-light-blue">
 					<h4>Days of week</h4>
@@ -319,7 +283,7 @@ if (isset($_SESSION['username'])) {
 					</p> 
 				</div>
 				<br>
-				<button id="StepThreeToTwo" class="w3-btn w3-hide-large  StepNav">Back</button>
+
 			</div>
 		</div>
 		<input type="Submit" value="Done">

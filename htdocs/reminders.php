@@ -10,7 +10,7 @@ require_once 'Hydrogen/libDebug.php';
 <script>
 $(document).ready(function(){
   $(".mark_reminder_complete").html('<img src="images/check_me.jpg" height="16">');
-  $(".edit_reminder").html('<img src="images/checked.jpg" height="16">');
+  $(".edit_reminder").html('<img src="images/edit.png" height="16">');
 });
 
 
@@ -56,7 +56,7 @@ function show_upcoming () {
 		SQL FOR UPCOMING REMINDERS
 		
 		*/
-		$sql = "select title as 'Title', date_format(start_date,'%M %D') as 'Start Date', date_format(due_date,'%M %D') as 'Due Date'";
+		$sql = "select title as 'Title', date_format(start_date,'%M %D') as 'Start', date_format(due_date,'%M %D') as 'Due'";
 		$sql = $sql . "	from reminder where owner='" . $_SESSION['username'] . "' ";
 		$sql = $sql . " and ifnull(start_date,now()- interval 1 day) BETWEEN current_timestamp() and date_add(current_timestamp(), interval 90 day)  ";
 		//$sql = $sql . " and ifnull(snooze_date,now()- interval 1 day) > current_timestamp()";
@@ -176,7 +176,7 @@ if (isset($_SESSION['username'])) {
 		
 	*/
 	
-	$sql = "select sequence as '(check)', id as '(edit)', title as 'Title', description as 'Description', date(start_date) as 'Start Date', date(due_date) as 'Due Date'";
+	$sql = "select sequence as '(check)', id as '(edit)', title as 'Title', date_format(start_date,'%M %D') as 'Start', date_format(due_date,'%M %D') as 'Due'";
 	$sql = $sql . "	from reminder where owner='" . $_SESSION['username'] . "' ";
 	$sql = $sql . " and ifnull(start_date,now()- interval 1 day) < current_timestamp() ";
 	$sql = $sql . " and ifnull(snooze_date,now()- interval 1 day) < current_timestamp() ";

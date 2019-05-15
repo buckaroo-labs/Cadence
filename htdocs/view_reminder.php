@@ -10,123 +10,12 @@ $this_page="view_reminder.php"
 <!-- Main content: shift it to the right by 250 pixels when the sidebar is visible -->
 <div class="w3-main w3-container w3-padding-16" style="margin-left:250px">
 
-<?php include 'Hydrogen/elemLogoHeadline.php';  
+<?php 
 
-function calculate_weekdays() {
-	global $sqlb;
-	$daysOfWeek="";
-	if (isset($_POST['MondayYN'])) $daysOfWeek .= "M";
-	if (isset($_POST['TuesdayYN'])) $daysOfWeek .= "T";
-	if (isset($_POST['WednesdayYN'])) $daysOfWeek .= "W";
-	if (isset($_POST['ThursdayYN'])) $daysOfWeek .= "t";
-	if (isset($_POST['FridayYN'])) $daysOfWeek .= "F";
-	if (isset($_POST['SaturdayYN'])) $daysOfWeek .= "S";
-	if (isset($_POST['SundayYN'])) $daysOfWeek .= "s";	
-	if ($daysOfWeek!="") $sqlb->addColumn("days_of_week",$daysOfWeek);
-	return 1;
-}
-function calculate_blackout_hours () {
-	global $sqlb;
-	if (isset($_POST['SilentHoursYN'])) {
-		if (isset(_POST['TimeOfDayStart'])) {  
-			$startTime=$_POST['TimeOfDayStart'];
-			$startTime=str_replace($startTime,":","");
-			$startTime=substr($startTime,1,4);
-			$sqlb->addColumn("day_start",$startTime);
-		}
-		if (isset(_POST['TimeOfDayEnd'])) {  
-			$endTime=$_POST['TimeOfDayEnd'];
-			$endTime=str_replace($endTime,":","");
-			$endTime=substr($endTime,1,4);
-			$sqlb->addColumn("day_end",$endTime);
-		}
-	}
-	return 1;
-}
-
-function calculate_seasonality() {
-	global $sqlb;
-	//UI year starts at day 1; DB year starts at day zero
-	if (isset($_POST['SilentDaysYN'])) {
-		if (isset(_POST['season_start'])) {  
-			$startday= (int) $_POST['season_start'] -1;
-			$sqlb->addColumn("day_start",$startday);
-		}
-		if (isset(_POST['season_end'])) {  
-			$endday= (int) $_POST['season_end'] -1;
-			$sqlb->addColumn("day_end",$endday);
-		}
-	}
-	return 1;
-}
-function calculate_enddate() {
-	global $sqlb;
-	if (($_POST['EndDate'])!="")  {
-		$endDate=$_POST['EndDate'];
-			if (($_POST['EndTime'])!="") {
-				$endDate .= " " . $_POST['EndTime'];
-			}
-		$sqlb->addColumn("end_date",$endDate);
-	}
-	return 1;
-}		
-		
-function calculate_duedate() {
-	global $sqlb;		
-	global $startDate;
-	$columns = array('grace_scale','grace_units');
-	if (isset($_POST['GraceTime'])) {
-		if($_POST['GraceTime']=="DueYN") {
-			$sqlb->addVarColumns($columns);
-			$interval ="+" . $_POST['grace_units'] . " " . decode_scale($_POST['grace_scale']);
-			$dueDate = strtotime($interval,$startDate);
-			$dueDateStr = date("Y-m-d H:i:s",$dueDate);
-			$sqlb->addColumn("due_date",$dueDateStr);
-		}
-	}
-	return 1;
-}
-		
-function calculate_alarms() {
-	global $sqlb;
-	global $startDate;
-	$columns = array('passive_scale',					
-					'passive_units',
-					'alarm_interval_scale',
-					'alarm_interval_units'
-					);
-	if (isset($_POST['Alarms'])){
-		if($_POST['Alarms']=="AlarmYN") {
-			$sqlb->addVarColumns($columns);
-			$interval ="+" . $_POST['passive_units'] . " " . decode_scale($_POST['passive_scale']);
-			$alarmDate = strtotime($interval,$startDate);	
-			$almDateStr = date("Y-m-d H:i:s",$alarmDate);			
-			$sqlb->addColumn("active_date",$almDateStr);
-		}
-	}
-	return 1;
-}		
-		
-		
-function decode_scale ($scale_code) {
-	switch ($scale_code) {
-		case 0:
-			$retval = "hours";
-			break;
-		case 2:
-			$retval = "weeks";
-			break;
-		case 3:
-			$retval = "months";
-			break;
-		case 4:
-			$retval = "years";
-			break;
-		default:
-			$retval = "days";
-	}
-	return $retval;
-}
+//unset these to remove the elements from the page, but include elemLogoHeadline to push the main section below the nav bar. Find a cleaner way of doing this later.
+unset ($logo_image);
+unset ($headline);
+include 'Hydrogen/elemLogoHeadline.php';  
 
 if (isset($_SESSION['username'])) {
 	require_once 'Hydrogen/clsDataSource.php';
@@ -142,107 +31,93 @@ if (isset($_SESSION['username'])) {
 		}
 	}
 */
-	if ($_POST['ID']=="new") {
-			
-		$sqlb = new SQLBuilder("INSERT");
-		$sqlb->setTableName("reminder");
-		$sqlb->addColumn("owner",$_SESSION['username']);
-		//process POST variables into sanitized SQL insert
-		
-		//some are easy
-		$columns = array('title',
-						'description',
-						'notes',
-						'category',
-						'priority',
-						'snooze_scale',
-						'snooze_units'					
-						);
-		$sqlb->addVarColumns($columns);
-		
-		//others require more processing
-		
-		$startDateStr=$_POST['StartDate'] . " " . $_POST['StartTime'];
-		$sqlb->addColumn("start_date",$startDateStr);
-		$startDate= strtotime($startDateStr);
-		
-		//Recurrence
-		$columns = array('recur_scale','recur_units','recur_float');
-		if (isset($_POST['Recurrence'])) {
-			if($_POST['Recurrence']=="RecurYN") $sqlb->addVarColumns($columns);
-		}
-		
-		$return=calculate_duedate();
-		$return=calculate_alarms();
-		$return=calculate_seasonality() ;
-		$return=calculate_blackout_hours();
-		$return=calculate_enddate();		
-		$return=calculate_weekdays();
-		
-		//Cross your fingers
-		$SQL=$sqlb->getSQL();
-		$dds->setSQL($SQL);
-		echo "<P>" . $SQL . "</P>";
-	} else {
-	//not "new"	
-		if (isset($_POST['DIRTY'])) {
-			$sqlb = new SQLBuilder("UPDATE");
-			$sqlb->setTableName("reminder");
-			//oops! this part is important:
-			$sqlb->addWhere("id='" .  $_POST['ID']. "'");
-			$sqlb->addWhere("owner='" .  $_SESSION['username']. "'");
-			
-			
-			$sqlb->addColumn("owner",$_SESSION['username']);
-			//process POST variables into sanitized SQL insert
-			
-			//some are easy
-			$columns = array('title',
-							'description',
-							'notes',
-							'category',
-							'priority',
-							'snooze_scale',
-							'snooze_units'					
-							);
-			$sqlb->addVarColumns($columns);
-			
-			//others require more processing
-			
-			$startDateStr=$_POST['StartDate'] . " " . $_POST['StartTime'];
-			$sqlb->addColumn("start_date",$startDateStr);
-			$startDate= strtotime($startDateStr);
-			
-			//Recurrence
-			$columns = array('recur_scale','recur_units','recur_float');
-			if (isset($_POST['Recurrence'])) {
-				if($_POST['Recurrence']=="RecurYN") $sqlb->addVarColumns($columns);
-			}
-			
-			$return=calculate_duedate();
-			$return=calculate_alarms();
-			$return=calculate_seasonality() ;
-			$return=calculate_blackout_hours();
-			$return=calculate_enddate();		
-			$return=calculate_weekdays();
-			
-			//Cross your fingers
-			$SQL=$sqlb->getSQL();
-			$dds->setSQL($SQL);
-			echo "<P>" . $SQL . "</P>";
-			
-		} //dirty
-	
-	
-	} //not new
+	if (isset($_POST['ID'])) include "post_reminder.php";
 	
 	//display the reminder as read-only
 	
-	///////////////////////////////////
-	//
-	// NOT YET IMPLEMENTED
-	//
-	///////////////////////////////////
+
+	if (isset($_GET['ID'])) $reminderID = $_GET['ID'];
+
+	if ($reminderID=="new") {
+		$where="sequence=" . $timestamp;
+	} else {
+		$where="id=" . $reminderID;
+	}
+
+	$result = $dds->setSQL("SELECT * FROM reminder WHERE  ". $where . " AND owner ='" . $_SESSION['username'] . "'");
+	$remdata = $dds->getNextRow("labeled");
+
+	$startdatestr = date("Y-m-d",strtotime($remdata['start_date']));
+	$starttimestr = date("H:i",strtotime($remdata['start_date']));
+
+	$output = "The reminder titled '" . $remdata['title'] . "' is set for " . $startdatestr . " at " . $starttimestr;
+
+	if (isset($remdata['end_date'])) {
+		if (!is_null($remdata['end_date'])) {
+
+		$enddatestr = date("Y-m-d",strtotime($remdata['end_date']));
+		$endtimestr = date("H:i",strtotime($remdata['end_date']));
+		$output .= " and will not recur after " . $enddatestr  . " at " . $endtimestr;
+		}
+	}
+	$output .=". " ;
+	
+	//all of the below can be used in a later release to add more output.
+	
+	$priority = $remdata['priority'];
+	$recur_float = $remdata['recur_float'];
+	$recur_units = $remdata['recur_units'];
+	$recur_scale = $remdata['recur_scale'];
+	$grace_units = $remdata['grace_units'];
+	$grace_scale = $remdata['grace_scale'];
+	$passive_units = $remdata['grace_units'];
+	$passive_scale = $remdata['grace_scale'];
+	$alarm_interval_units = $remdata['alarm_interval_units'];
+	$alarm_interval_scale = $remdata['alarm_interval_scale'];
+	$snooze_units = $remdata['snooze_units'];
+	$snooze_scale = $remdata['snooze_scale'];
+	$days_of_week= "_" . $remdata['days_of_week'];
+	if(is_null($remdata['days_of_week'])) $days_of_week="_MTWtFSs";
+	if (!is_null($remdata['season_start'])) {
+		$blackout_days=true;
+		$season_start= (int) $remdata['season_start'] + 1;
+	} else {
+		$season_start= "1";
+	}
+	if (!is_null($remdata['season_end'])) {
+		$blackout_days=true;
+		$season_end= (int) $remdata['season_end'] +1;
+	} else {
+		$season_end= "365";
+	}
+	if (!is_null($remdata['day_start'])) {
+		$blackout_hours=true;
+		$temp = (string) $remdata['day_start'];
+		$tempmin = substr($temp,1,-2);
+		$temphour = str_replace($tempmin,'',$temp);
+		$tempminute = (int) $tempmin;
+		if ($tempminute > 59) $tempminute=59;
+		if ($tempminute < 10) $tempminute= "0" . $tempminute;
+		if ($temphour < 10) $temphour= "0" . $temphour;
+		$tod_start= $temphour . ":" . $tempmin ;
+	} else {
+		$tod_start= "00:00";
+	}
+	if (!is_null($remdata['day_end'])) {
+		$blackout_hours=true;
+		$temp = (string) $remdata['day_end'];
+		$tempmin = substr($temp,1,-2);
+		$temphour = str_replace($tempmin,'',$temp);
+		$tempminute = (int) $tempmin;
+		if ($tempminute > 59) $tempminute=59;
+		if ($tempminute < 10) $tempminute= "0" . $tempminute;
+		if ($temphour < 10) $temphour= "0" . $temphour;
+		$tod_end= $temphour . ":" . $tempmin ;
+	} else {
+		$tod_end= "23:59";
+	}
+	echo "<p>" . $output . "</p>" . '<p><a href="edit_reminder.php?ID=' . $remdata['id'] . '">Edit</a></p>';
+
 	
 } else {
 	echo '<P>Not logged in.</p>';	
