@@ -141,6 +141,8 @@ if (isset($_SESSION['username'])) {
 		<input name="DIRTY" type="hidden" value="Y">
 		<p>
 			<label class="w3-text-red">Title (required)</label>
+			<!-- The UI max length should be several chars smaller than the database
+			to allow for HTML encoding e.g. "'" to "&rsquo;" -->
 			<input name="title" class="w3-input w3-border" type="text" maxlength="30" <?php if(!$new) echo ' value="' . $remdata['title'] . '"'; ?> required>
 		</p>
 		 

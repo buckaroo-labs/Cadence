@@ -56,7 +56,7 @@ function show_upcoming () {
 		SQL FOR UPCOMING REMINDERS
 		
 		*/
-		$sql = "select title as 'Title', date_format(start_date,'%M %D') as 'Start', date_format(due_date,'%M %D') as 'Due'";
+		$sql = "select id as '(edit)', title as 'Title', date_format(start_date,'%M %D') as 'Start', date_format(due_date,'%M %D') as 'Due'";
 		$sql = $sql . "	from reminder where owner='" . $_SESSION['username'] . "' ";
 		$sql = $sql . " and ifnull(start_date,now()- interval 1 day) BETWEEN current_timestamp() and date_add(current_timestamp(), interval 90 day)  ";
 		//$sql = $sql . " and ifnull(snooze_date,now()- interval 1 day) > current_timestamp()";
@@ -76,11 +76,13 @@ function show_upcoming () {
 			unset($linkTargets);
 			unset($keycols);
 			unset($invisible);
-			//$linkURLs[0] = 'reminders.php?mark_complete=';
-			//$address_classes[0]='mark_reminder_complete';
+			$linkURLs[0] = 'edit_reminder.php?ID=';
+			$keycols=array();
+			$invisible=array();
+			$address_classes[0]='edit_reminder';			
 			echo "<H3>Upcoming</h3>";
 			$table=new HTMLTable($dds->getFieldNames(),$dds->getFieldTypes());
-			//$table->defineRows($linkURLs,$keycols,$invisible,$address_classes,$linkTargets);
+			$table->defineRows($linkURLs,$keycols,$invisible,$address_classes);
 			$table->start();
 			while ($result_row = $dds->getNextRow()){
 				$table->addRow($result_row);

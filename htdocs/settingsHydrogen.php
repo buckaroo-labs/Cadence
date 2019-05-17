@@ -28,4 +28,5 @@ define ("DEBUG_PATH","D:\Code\LAMP\Lithium\htdocs\debug.txt");
 $settings['search_page']="index.php";
 $settings['login_page'] = "login.php";
 
+
 ?>
