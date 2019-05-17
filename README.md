@@ -10,5 +10,5 @@ Tested with Hydrogen v0.5
 * Platform independence (use from any and all devices with browsers)
 * Open Source (have it your way)
 * Portability (take your data with you)
-* Privacy (self-hosting optional)
+* Privacy (self-hosting optional; data deletion optional)
 
