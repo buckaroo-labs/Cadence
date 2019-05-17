@@ -3,10 +3,10 @@ DROP TABLE IF EXISTS reminder;
 CREATE TABLE reminder ( 
 `id` INT NOT NULL AUTO_INCREMENT , 
 `owner` VARCHAR(30) NOT NULL DEFAULT 'test' COMMENT 'user ID', 
-`title` VARCHAR(30) NOT NULL COMMENT 'e.g. feed cat', 
+`title` VARCHAR(60) NOT NULL COMMENT 'e.g. feed cat', 
 `description` VARCHAR(255) NULL  COMMENT 'clarify title if needed', 
 `notes` TEXT NULL  COMMENT 'additional information including steps to complete', 
-`category` CHAR(30) NULL , 
+`category` CHAR(50) NULL , 
 `priority` INT NULL  , 
 `recur_scale` INT NOT NULL DEFAULT '1' COMMENT 'hours,days,weeks,months,years = 0,1,2,3,4' , 
 `recur_units` INT NULL COMMENT 'number of time units before reminder will recur quietly; null values indicate non-recurrence', 
