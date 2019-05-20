@@ -1,7 +1,7 @@
 from selenium.webdriver import Firefox 
 from selenium.webdriver.firefox.options import Options
 
-class Cadence1():
+class FF_Test():
 
 	def debugComment (self,strComment):
 		print ("-- " + strComment)
@@ -84,5 +84,5 @@ class Cadence1():
 		quit()
 			
 			
-ff = Cadence1()
+ff = FF_Test()
 ff.main()
