@@ -1,6 +1,6 @@
 <?php 
-$pagetitle="Home | Lithium";
-$headline = '<h1>Lithium</h1><h3>One step at a time</h3>' ;
+$pagetitle="Home | Cadence";
+$headline = '<h1>Cadence</h1><h3>Keeping in step</h3>' ;
 include "Hydrogen/pgTemplate.php";
 ?>
 
