@@ -1,7 +1,7 @@
 <?php
-$logo_image="images/logo.jpg";
+$logo_image="images/logo.png";
 
-$navbar_links[0]=array("name"=>'<img src="images/logo_tn">',"href"=>"index.php","class"=>"w3-theme-l1");
+$navbar_links[0]=array("name"=>'<img src="images/logo.png" height="16">',"href"=>"index.php","class"=>"w3-theme-l1");
 $navbar_links[1]=array("name"=>"Home","href"=>"./","class"=>"w3-hide-small w3-hover-white");
 $navbar_links[2]=array("name"=>"About","href"=>"#","class"=>"w3-hide-small w3-hover-white");
 
