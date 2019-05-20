@@ -14,7 +14,7 @@ class Cadence1():
 		
 		self.BaseURL="http://localhost/Cadence/"
 		self.Username="Selenium"
-		self.Password="teardropcollect0r"
+		self.Password="pass_w0rd"
 		self.wait = 2
 
 	def log_in(self):
