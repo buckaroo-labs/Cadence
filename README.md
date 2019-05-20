@@ -1,5 +1,5 @@
 # Cadence
-Reminder management app (LAMP)
+Reminder management app (xAMP)
 
 Built on Hydrogen framework (clone the Hydrogen repository inside this project's htdocs folder and then add it to your .gitignore)
 
