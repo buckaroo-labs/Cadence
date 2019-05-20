@@ -5,6 +5,11 @@ Built on Hydrogen framework (clone the Hydrogen repository inside this project's
 
 Tested with Hydrogen v0.5
 
+## Contents
+* the htdocs folder contains the PHP and image files to go in your web root
+* the sql folder contains the SQL commands to create your database tables and (optionally) create demo data
+* the tests folder contains 1 or more Python scripts used for automated browser-based regression testing
+
 ## Project values
 * Functionality 
 * Platform independence (use from any and all devices with browsers)
