@@ -116,7 +116,7 @@ if (isset($_SESSION['username'])) {
 	} else {
 		$tod_end= "23:59";
 	}
-	echo "<p>" . $output . "</p>" . '<p><a href="edit_reminder.php?ID=' . $remdata['id'] . '">Edit</a></p>';
+	echo '<p name="reminder_description">' . $output . "</p>" . '<p><a href="edit_reminder.php?ID=' . $remdata['id'] . '">Edit</a></p>';
 
 	
 } else {

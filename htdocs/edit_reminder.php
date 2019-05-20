@@ -288,7 +288,7 @@ if (isset($_SESSION['username'])) {
 
 			</div>
 		</div>
-		<input type="Submit" value="Done">
+		<input name="btnSubmit" type="Submit" value="Done">
 
 	</form>
 <?php
