@@ -1,7 +1,7 @@
 
 <?php 
 $pagetitle="Reminder | Cadence";
-$headline = '<h1>Cadence</h1><h3>Keeping in step</h3>' ;
+$headline = '<h1>Cadence</h1>' ;
 include "Hydrogen/pgTemplate.php";
 require_once 'Hydrogen/libDebug.php';
 $this_page="view_reminder.php"

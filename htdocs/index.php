@@ -1,6 +1,6 @@
 <?php 
 $pagetitle="Home | Cadence";
-$headline = '<h1>Cadence</h1><h3>Keeping in step</h3>' ;
+$headline = '<h1>Cadence</h1>' ;
 include "Hydrogen/pgTemplate.php";
 ?>
 

@@ -1,7 +1,7 @@
 <?php 
 $pagetitle="Log In | Cadence";
 include "Hydrogen/pgTemplate.php";
-$headline = '<h1>Cadence</h1><h3>Keeping in step</h3>' ;
+$headline = '<h1>Cadence</h1>' ;
 ?>
 <?php if (isset($_SESSION['demo'])) unset($_SESSION['demo']); ?>
 <!-- Main content: shift it to the right by 250 pixels when the sidebar is visible -->
