@@ -1,4 +1,5 @@
 <?php
 
-define ("DEFAULT_DB_PASS","remind_me"); // set default database password
+$settings['DEFAULT_DB_PASS'] = "remind_me";
+
 ?>
