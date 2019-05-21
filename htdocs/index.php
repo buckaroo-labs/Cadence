@@ -24,6 +24,7 @@ include "Hydrogen/pgTemplate.php";
 <!-- END MAIN -->
 </div>
 
+<?php include "Hydrogen/elemNavbar.php"; ?>
 <?php include "Hydrogen/elemFooter.php"; ?>
 </body></html>
 

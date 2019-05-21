@@ -1,7 +1,7 @@
 
 <?php 
-$pagetitle="Reminder | Lithium";
-$headline = '<h1>Lithium</h1><h3>One step at a time</h3>' ;
+$pagetitle="Reminder | Cadence";
+$headline = '<h1>Cadence</h1><h3>Keeping in step</h3>' ;
 include "Hydrogen/pgTemplate.php";
 require_once 'Hydrogen/libDebug.php';
 $this_page="view_reminder.php"
@@ -128,5 +128,6 @@ if (isset($_SESSION['username'])) {
 <p></p>
 </div>
 
+<?php include "Hydrogen/elemNavbar.php"; ?>
 <?php include "Hydrogen/elemFooter.php"; ?>
 </body></html>

@@ -236,5 +236,6 @@ if (isset($_SESSION['username'])) {
 <p></p>
 </div>
 
+<?php include "Hydrogen/elemNavbar.php"; ?>
 <?php include "Hydrogen/elemFooter.php"; ?>
 </body></html>

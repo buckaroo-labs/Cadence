@@ -1,5 +1,5 @@
 <?php 
-$pagetitle="Register | Lithium";
+$pagetitle="Register | Cadence";
 include "Hydrogen/pgTemplate.php";
 ?>
 
