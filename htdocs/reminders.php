@@ -4,6 +4,7 @@ $pagetitle="Reminders | Cadence";
 $headline = '<h1>Cadence</h1>' ;
 include "Hydrogen/pgTemplate.php";
 require_once 'Hydrogen/libDebug.php';
+require_once 'common.php';
 ?>
 
 
@@ -21,28 +22,9 @@ $(document).ready(function(){
 <!-- Main content: shift it to the right by 250 pixels when the sidebar is visible -->
 <div class="w3-main w3-container w3-padding-16" style="margin-left:250px">
 
-<?php include 'Hydrogen/elemLogoHeadline.php';  
+<?php 
+include 'Hydrogen/elemLogoHeadline.php';  
 
-
-function decode_scale ($scale_code) {
-	switch ($scale_code) {
-		case 0:
-			$retval = "hours";
-			break;
-		case 2:
-			$retval = "weeks";
-			break;
-		case 3:
-			$retval = "months";
-			break;
-		case 4:
-			$retval = "years";
-			break;
-		default:
-			$retval = "days";
-	}
-	return $retval;
-}
 function show_upcoming () {
 		global $dds;
 		global $address_classes;

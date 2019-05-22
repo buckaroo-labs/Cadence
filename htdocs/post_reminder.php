@@ -1,5 +1,5 @@
 <?php
-
+require_once 'common.php';
 
 //In theory, the SQLBuilder class will sanitize 
 //	all the POST variables used as column data
@@ -99,28 +99,6 @@ function calculate_alarms() {
 	return 1;
 }		
 		
-		
-function decode_scale ($scale_code) {
-	switch ($scale_code) {
-		case 0:
-			$retval = "hours";
-			break;
-		case 2:
-			$retval = "weeks";
-			break;
-		case 3:
-			$retval = "months";
-			break;
-		case 4:
-			$retval = "years";
-			break;
-		default:
-			$retval = "days";
-	}
-	return $retval;
-}
-
-
 if ($_POST['ID']=="new") {
 	$timestamp = (string) time();	
 	$sqlb = new SQLBuilder("INSERT");
@@ -209,7 +187,7 @@ if ($_POST['ID']=="new") {
 		//Cross your fingers
 		$SQL=$sqlb->getSQL();
 		$dds->setSQL($SQL);
-		echo "<P>" . $SQL . "</P>";
+		//echo "<P>" . $SQL . "</P>";
 		
 	} //dirty
 
