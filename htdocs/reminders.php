@@ -58,13 +58,15 @@ function show_upcoming () {
 			unset($linkTargets);
 			unset($keycols);
 			unset($invisible);
+			unset($hide_headers);
 			$linkURLs[0] = 'edit_reminder.php?ID=';
 			$keycols=array();
 			$invisible=array();
+			$hide_headers[0] = 1;
 			$address_classes[0]='edit_reminder';			
 			echo "<H3>Upcoming</h3>";
 			$table=new HTMLTable($dds->getFieldNames(),$dds->getFieldTypes());
-			$table->defineRows($linkURLs,$keycols,$invisible,$address_classes);
+			$table->defineRows($linkURLs,$keycols,$invisible,$address_classes,$link_targets,$hide_headers);
 			$table->start();
 			while ($result_row = $dds->getNextRow()){
 				$table->addRow($result_row);
