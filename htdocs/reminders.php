@@ -10,7 +10,7 @@ require_once 'common.php';
 
 <script>
 $(document).ready(function(){
-  $(".mark_reminder_complete").html('<img src="images/check_me.jpg" height="16">');
+  $(".mark_reminder_complete").html('<img src="images/checkbox.png" height="16">');
   $(".edit_reminder").html('<img src="images/edit.png" height="16">');
 });
 
