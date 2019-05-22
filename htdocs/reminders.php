@@ -185,20 +185,24 @@ if (isset($_SESSION['username'])) {
 		unset($linkTargets);
 		unset($keycols);
 		unset($invisible);
+		unset($hide_headers);
 		$linkTargets=null;
 		$keycols=null;
 		$invisible=null;
-		//$invisible[5] = 1;
+		$invisible[5] = 1;
 		$linkURLs[0] = 'reminders.php?mark_complete=';
 		$address_classes[0]='mark_reminder_complete';
 		$linkURLs[1] = 'edit_reminder.php?ID=';
 		$address_classes[1]='edit_reminder';
 		$linkURLs[2] = 'view_reminder.php?ID=';
 		$keycols[2] = 1;
+		$hide_headers[0]=1;
+		$hide_headers[1]=1;
+		$hide_headers[5]=1;		
 		//$address_classes[2]='view_reminder';
 		echo "<H3>Current</h3>";
 		$table=new HTMLTable($dds->getFieldNames(),$dds->getFieldTypes());
-		$table->defineRows($linkURLs,$keycols,$invisible,$address_classes,$linkTargets);
+		$table->defineRows($linkURLs,$keycols,$invisible,$address_classes,$linkTargets,$hide_headers);
 		$table->start();
 		while ($result_row = $dds->getNextRow()){
 			$style='background-color: #a4f995; color: black';
