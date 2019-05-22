@@ -39,6 +39,7 @@ function decode_scale_and_units ($scale_code, $units, $include_1=false) {
 		default:
 			$scale = "day";
 	}
+	if (is_null($units)) $units=1;
 	if ($units ==1) $retval= $scale; else $retval=  "$units $scale" . "s";
 	if ($units ==1 and $include_1) $retval="1 " . $retval;
 	return $retval;

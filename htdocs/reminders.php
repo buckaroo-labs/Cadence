@@ -185,7 +185,7 @@ if (isset($_SESSION['username'])) {
 	$sql = $sql . " and ifnull(days_of_week,'MTWtFSs') like '%" . substr($dayofweek,0,1) . "%'";
 	
 	$sql = $sql . " and ifnull(end_date,now()+ interval 1 day) > now()";
-	$sql = $sql . " ORDER BY ifnull(due_date,now()+ interval 99 year)";
+	$sql = $sql . " ORDER BY ifnull(due_date,now()+ interval 99 year), start_date";
 	//echo "<P>SQL:" . $sql . "</P>";
 
 	$result = $dds->setMaxRecs(50);
