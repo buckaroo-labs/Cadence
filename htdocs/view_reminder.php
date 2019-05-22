@@ -80,17 +80,22 @@ if (isset($_SESSION['username'])) {
 	}	
 	
 	if (isset($remdata['grace_units'])) {
+
+		$duedatestr = date("Y-m-d",strtotime($remdata['due_date']));
+		$duetimestr = date("H:i",strtotime($remdata['due_date']));		
 		if (!is_null($remdata['grace_units'])) {
 			$temp = decode_scale_and_units($remdata['grace_scale'],$remdata['grace_units'],true);
-			$output .= "<tr><td>Due: </td><td>$temp after start</td><tr>";
+			$output .= "<tr><td>Due: </td><td>$duedatestr at $duetimestr ($temp after start)</td><tr>";
 		}
 	}
 		
 	if (isset($remdata['passive_units'])) {
 		if (!is_null($remdata['passive_units'])) {
+			$alarmdatestr = date("Y-m-d",strtotime($remdata['active_date']));
+			$alarmtimestr = date("H:i",strtotime($remdata['active_date']));	
 			$temp = decode_scale_and_units($remdata['passive_scale'],$remdata['passive_units'],true);
 			$alarm = decode_scale_and_units($remdata['alarm_interval_scale'],$remdata['alarm_interval_units']);
-			$output .= "<tr><td>Alarms*: </td><td>Every $alarm beginning $temp after start</td><tr>";
+			$output .= "<tr><td>Alarms*: </td><td>Every $alarm beginning $alarmdatestr at $alarmtimestr ($temp after start)</td><tr>";
 			$implementation_note = true;
 		}
 	}
