@@ -52,6 +52,7 @@ if (isset($_SESSION['username'])) {
 	$startdatestr = date("Y-m-d",strtotime($remdata['start_date']));
 	$starttimestr = date("H:i",strtotime($remdata['start_date']));
 
+	$implementation_note=false;
 	//$output = "The reminder titled '" . $remdata['title'] . "' is set for " . $startdatestr . " at " . $starttimestr;
 	$output = "<table><tr><td>Title: </td><td>" . $remdata['title'] . "</td><tr>";
 	$output .= "<tr><td>Start: </td><td>$startdatestr at $starttimestr</td><tr>";
@@ -62,10 +63,9 @@ if (isset($_SESSION['username'])) {
 	if (isset($remdata['recur_units'])) {
 		if (!is_null($remdata['recur_units'])) {
 			if ($remdata['recur_float']==1) $recur_float = "completion"; else $recur_float="start";
-			$recur_units = $remdata['recur_units'];
-			$recur_scale = decode_scale($remdata['recur_scale']);
-			$recur_str = "Every $recur_units $recur_scale after previous $recur_float";
-			$output .= "<tr><td>Recurrence: </td><td>$recur_str</td><tr>";
+			$temp = decode_scale_and_units($remdata['recur_scale'],$remdata['recur_units']);
+			$temp = "Every $temp after previous $recur_float";
+			$output .= "<tr><td>Recurrence: </td><td>$temp</td><tr>";
 		}
 	}
 	
@@ -81,19 +81,17 @@ if (isset($_SESSION['username'])) {
 	
 	if (isset($remdata['grace_units'])) {
 		if (!is_null($remdata['grace_units'])) {
-			$grace_units = $remdata['grace_units'];
-			$grace_scale = decode_scale($remdata['grace_scale']);
-			$output .= "<tr><td>Due: </td><td>$grace_units $grace_scale after start</td><tr>";
+			$temp = decode_scale_and_units($remdata['grace_scale'],$remdata['grace_units'],true);
+			$output .= "<tr><td>Due: </td><td>$temp after start</td><tr>";
 		}
 	}
 		
 	if (isset($remdata['passive_units'])) {
 		if (!is_null($remdata['passive_units'])) {
-			$passive_units = $remdata['passive_units'];
-			$passive_scale = decode_scale($remdata['passive_scale']);
-			$alarm_interval_units = $remdata['alarm_interval_units'];
-			$alarm_interval_scale = decode_scale($remdata['alarm_interval_scale']);
-			$output .= "<tr><td>Alarms (not implemented): </td><td>Every $alarm_interval_units $alarm_interval_scale beginning $passive_units $passive_scale after start</td><tr>";
+			$temp = decode_scale_and_units($remdata['passive_scale'],$remdata['passive_units'],true);
+			$alarm = decode_scale_and_units($remdata['alarm_interval_scale'],$remdata['alarm_interval_units']);
+			$output .= "<tr><td>Alarms*: </td><td>Every $alarm beginning $temp after start</td><tr>";
+			$implementation_note = true;
 		}
 	}
 
@@ -140,7 +138,8 @@ if (isset($_SESSION['username'])) {
 	} else {
 		$tod_end= "23:59";
 	}
-	$output .="</table>" ;
+	$output .="</table>";
+	if ($implementation_note) $output .= "<P>(* = not implemented)</P>" ;
 	echo '<p name="reminder_description">' . $output . "</p>" . '<p><a href="edit_reminder.php?ID=' . $remdata['id'] . '">Edit</a></p>';
 
 	
