@@ -18,8 +18,9 @@ if (isset($_POST['uname']) and isset($_POST['passwd'])) {
 			echo '<html><head><meta http-equiv="Refresh" content="0; url=' . $_SESSION['referring_page'] .'" />  </head></html>';
 			exit;
 	} else {
-		echo '<html><head></head><body><p>Username: '. $_SESSION['username']. ' <br> Referring page:' . $_SESSION['referring_page'] . '</p></body></html>';
-		exit;
+		//Debugging
+		//echo '<html><head></head><body><p>Unexpected error.</p><p>Username: '. $_SESSION['username']. ' <br> Referring page:' . $_SESSION['referring_page'] . '</p></body></html>';
+		//exit;
 	}
 }
 $pagetitle="Log In | Cadence";
