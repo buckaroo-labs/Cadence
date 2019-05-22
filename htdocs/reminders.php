@@ -1,10 +1,17 @@
 
 <?php 
+
+require_once 'common.php';
+$_SESSION['referring_page']=$_SERVER['REQUEST_URI'];
+require_login();
+
 $pagetitle="Reminders | Cadence";
 $headline = '<h1>Cadence</h1>' ;
 include "Hydrogen/pgTemplate.php";
 require_once 'Hydrogen/libDebug.php';
 require_once 'common.php';
+include_once 'settingsHydrogen.php';
+
 ?>
 
 
@@ -60,9 +67,12 @@ function show_upcoming () {
 			unset($invisible);
 			unset($hide_headers);
 			$linkURLs[0] = 'edit_reminder.php?ID=';
+			$linkURLs[1] = 'view_reminder.php?ID=';
 			$keycols=array();
 			$invisible=array();
+			$link_targets=array();
 			$hide_headers[0] = 1;
+			$keycols[1] = 0;
 			$address_classes[0]='edit_reminder';			
 			echo "<H3>Upcoming</h3>";
 			$table=new HTMLTable($dds->getFieldNames(),$dds->getFieldTypes());
@@ -221,6 +231,7 @@ if (isset($_SESSION['username'])) {
 	}
 } else {
 	echo '<P>Not logged in.</p>';	
+	
 }	
 ?>
 

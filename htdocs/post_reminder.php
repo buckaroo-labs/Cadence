@@ -75,6 +75,8 @@ function calculate_duedate() {
 			$dueDateStr = date("Y-m-d H:i:s",$dueDate);
 			$sqlb->addColumn("due_date",$dueDateStr);
 		}
+	} else {
+		$sqlb->addNullColumn("grace_units");
 	}
 	return 1;
 }
@@ -94,7 +96,11 @@ function calculate_alarms() {
 			$alarmDate = strtotime($interval,$startDate);	
 			$almDateStr = date("Y-m-d H:i:s",$alarmDate);			
 			$sqlb->addColumn("active_date",$almDateStr);
+		} else {
+			$sqlb->addNullColumn("passive_units");
 		}
+	} else {
+		$sqlb->addNullColumn("passive_units");
 	}
 	return 1;
 }		
@@ -140,7 +146,7 @@ if ($_POST['ID']=="new") {
 	//Cross your fingers
 	$SQL=$sqlb->getSQL();
 	$dds->setSQL($SQL);
-	echo "<P>" . $SQL . "</P>";
+	//echo "<P>" . $SQL . "</P>";
 } else {
 //not "new"	
 	if (isset($_POST['DIRTY'])) {

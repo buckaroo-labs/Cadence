@@ -87,8 +87,8 @@ if (isset($_SESSION['username'])) {
 			$recur_scale = $remdata['recur_scale'];
 			$grace_units = $remdata['grace_units'];
 			$grace_scale = $remdata['grace_scale'];
-			$passive_units = $remdata['grace_units'];
-			$passive_scale = $remdata['grace_scale'];
+			$passive_units = $remdata['passive_units'];
+			$passive_scale = $remdata['passive_scale'];
 			$alarm_interval_units = $remdata['alarm_interval_units'];
 			$alarm_interval_scale = $remdata['alarm_interval_scale'];
 			$snooze_units = $remdata['snooze_units'];
@@ -163,13 +163,7 @@ if (isset($_SESSION['username'])) {
 							<input name="StartTime" class="w3-input w3-border" type="time" value="<?php echo $starttimestr; ?>" required>
 						</p>
 					</div>
-					<div id="EndDateAndTime" class="w3-container w3-card-4 w3-brown">
-						<p>
-							<label>End</label>
-							<input name="EndDate" class="w3-input w3-border" type="date"  <?php if(!$new and isset($enddatestr) ) echo ' value="' . $enddatestr . '"'; ?>>
-							<input name="EndTime" class="w3-input w3-border" type="time"  <?php if(!$new and isset($endtimestr)) echo ' value="' . $endtimestr . '"'; ?>>
-						</p>
-					</div>
+
 				</p> 
 				<p>
 					<label class="w3-text-red">Priority</label>
@@ -183,12 +177,17 @@ if (isset($_SESSION['username'])) {
 				</p>
 				  
 				<p>
-					<label>Notes</label>
-					<input name="notes" class="w3-input w3-border" type="text"  <?php if(!$new) echo ' value="' . $remdata['notes'] . '"'; ?> >
+					<label>Notes</label><br>
+					<!-- <input name="note" class="w3-input w3-border" type="text"  > -->
+					<!-- thanks to https://www.studentstutorial.com/html/responsive-textarea -->
+					<div style="max-width: 750px; margin: 0px auto; margin-top: 20px;"><div style="width: 100%; height: auto; float:left" >
+					<textarea style="float: left; width: 100%;min-height: 75px;outline: none; resize: none;border: 1px solid grey;" name="notes" rows="8" cols="40" wrap="soft"> <?php if(!$new) echo  $remdata['notes'] ; ?> </textarea>
+					</div></div>
 				 </p>
+				 <br> 
 				  
 			</div>
-		  
+		    <p></p>
 			<div id="StepTwo"  class="w3-container w3-mobile w3-cell ">
 				<div id="Recurrence" class="w3-container w3-card-4 w3-pale-green">
 					<h4>Recurrence</h4>
@@ -205,6 +204,14 @@ if (isset($_SESSION['username'])) {
 						<input type="radio" name="recur_float" value="0" <?php if ($recur_float==0) echo ' checked'; ?> > its previous start time<br>
 						<input type="radio" name="recur_float" value="1" <?php if ($recur_float==1) echo ' checked'; ?> > its previous completion
 					</p>
+					<div id="EndDateAndTime" >
+						<p>
+							<label>Until: </label>
+							<input name="EndDate" class="w3-input w3-border" type="date"  <?php if(!$new and isset($enddatestr) ) echo ' value="' . $enddatestr . '"'; ?>>
+							<input name="EndTime" class="w3-input w3-border" type="time"  <?php if(!$new and isset($endtimestr)) echo ' value="' . $endtimestr . '"'; ?>>
+						</p>
+						<br>
+					</div>
 				</div>
 				<br>
 				<div id="GraceTime" class="w3-container w3-card-4 w3-pale-yellow">
@@ -247,7 +254,7 @@ if (isset($_SESSION['username'])) {
 				</div>
 		</div>
 		  <br>
-			<div id="StepThree" class="w3-container w3-mobile w3-cell ">
+			<div id="StepThree" class="w3-container w3-mobile w3-cell w3-hide-large w3-hide-small w3-hide-medium">
 				<div id="DaysOfWeek" class="w3-container w3-card-4 w3-light-blue">
 					<h4>Days of week</h4>
 					<p>

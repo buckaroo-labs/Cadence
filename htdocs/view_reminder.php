@@ -56,8 +56,25 @@ if (isset($_SESSION['username'])) {
 	//$output = "The reminder titled '" . $remdata['title'] . "' is set for " . $startdatestr . " at " . $starttimestr;
 	$output = "<table><tr><td>Title: </td><td>" . $remdata['title'] . "</td><tr>";
 	$output .= "<tr><td>Start: </td><td>$startdatestr at $starttimestr</td><tr>";
-	$output .= "<tr><td>Priority: </td><td>" . $remdata['priority'] ."</td><tr>";	
+
+	if (isset($remdata['description'])) {
+		if (!is_null($remdata['description'])) {
+			$output .= "<tr><td>Description: </td><td>" . $remdata['description'] ."</td><tr>";	
+		}
+	}
 	
+	
+	if (isset($remdata['category'])) {
+		if (!is_null($remdata['category'])) {
+			$output .= "<tr><td>Category: </td><td>" . $remdata['category'] ."</td><tr>";	
+		}
+	}
+	
+	if (isset($remdata['priority'])) {
+		if (!is_null($remdata['priority'])) {
+			$output .= "<tr><td>Priority: </td><td>" . $remdata['priority'] ."</td><tr>";	
+		}
+	}
 
 
 	if (isset($remdata['recur_units'])) {
@@ -65,19 +82,23 @@ if (isset($_SESSION['username'])) {
 			if ($remdata['recur_float']==1) $recur_float = "completion"; else $recur_float="start";
 			$temp = decode_scale_and_units($remdata['recur_scale'],$remdata['recur_units']);
 			$temp = "Every $temp after previous $recur_float";
+			
+			if (isset($remdata['end_date'])) {
+				if (!is_null($remdata['end_date'])) {
+
+				$enddatestr = date("Y-m-d",strtotime($remdata['end_date']));
+				$endtimestr = date("H:i",strtotime($remdata['end_date']));
+				//$output .= " and will not recur after " . $enddatestr  . " at " . $endtimestr;
+				$temp .= " until $enddatestr at $endtimestr";
+				}
+			}			
+					
+			
 			$output .= "<tr><td>Recurrence: </td><td>$temp</td><tr>";
 		}
 	}
 	
-	if (isset($remdata['end_date'])) {
-		if (!is_null($remdata['end_date'])) {
-
-		$enddatestr = date("Y-m-d",strtotime($remdata['end_date']));
-		$endtimestr = date("H:i",strtotime($remdata['end_date']));
-		//$output .= " and will not recur after " . $enddatestr  . " at " . $endtimestr;
-		$output .= "<tr><td>Recurrence end: </td><td>$enddatestr at $endtimestr</td><tr>";
-		}
-	}	
+	
 	
 	if (isset($remdata['grace_units'])) {
 
@@ -99,6 +120,14 @@ if (isset($_SESSION['username'])) {
 			$implementation_note = true;
 		}
 	}
+	
+
+	if (isset($remdata['notes'])) {
+		if (!is_null($remdata['notes'])) {
+			$output .= "<tr><td>Notes: </td><td>" . $remdata['notes'] ."</td><tr>";	
+		}
+	}
+
 
 	//$snooze_units = $remdata['snooze_units'];
 	//$snooze_scale = $remdata['snooze_scale'];

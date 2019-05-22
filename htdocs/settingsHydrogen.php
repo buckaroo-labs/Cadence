@@ -8,6 +8,7 @@ $navbar_links[2]=array("name"=>"Demo","href"=>"demo.php","class"=>"w3-hide-small
 
 $sidebar_links[0]=array("name"=>"List","href"=>"reminders.php","class"=>"w3-hover-black");
 $sidebar_links[1]=array("name"=>"New","href"=>"edit_reminder.php?ID=new","class"=>"w3-hover-black");
+$sidebar_links[2]=array("name"=>"Demo","href"=>"demo.php","class"=>"w3-hide-large w3-hide-medium w3-hover-white");
 
 $footer_text="This page was generated at " . date("Y-m-d H:i:s");
 

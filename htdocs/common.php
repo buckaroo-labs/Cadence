@@ -1,4 +1,7 @@
 <?php
+
+if (session_status() == PHP_SESSION_NONE) session_start(); 
+
 function decode_scale ($scale_code) {
 	switch ($scale_code) {
 		case 0:
@@ -41,5 +44,18 @@ function decode_scale_and_units ($scale_code, $units, $include_1=false) {
 	return $retval;
 }
 
+function require_login () {
+	require 'settingsHydrogen.php';
+	if (session_status() == PHP_SESSION_NONE) session_start(); 
+	//$_SESSION['referring_page']=$_SERVER['REQUEST_URI'];
+	//global $settings ;
+	if (!isset($_SESSION['username']) and isset($settings['login_page'])) {
+		
+			echo '<html><head><meta http-equiv="Refresh" content="0; url=' . $settings['login_page'] .'" />  </head></html>';
+			exit;
+		
+	}
+
+}
 
 ?>
