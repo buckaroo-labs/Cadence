@@ -161,6 +161,7 @@ if (isset($_SESSION['username'])) {
 	*/
 	
 	$sql = "select sequence as '(check)', id as '(edit)', title as 'Title', date_format(start_date,'%M %D') as 'Start', date_format(due_date,'%M %D') as 'Due'";
+	$sql .= ", CASE WHEN due_date < NOW() THEN 1 ELSE 0 END as overdue ";
 	$sql = $sql . "	from reminder where owner='" . $_SESSION['username'] . "' ";
 	$sql = $sql . " and ifnull(start_date,now()- interval 1 day) < current_timestamp() ";
 	$sql = $sql . " and ifnull(snooze_date,now()- interval 1 day) < current_timestamp() ";
@@ -187,6 +188,7 @@ if (isset($_SESSION['username'])) {
 		$linkTargets=null;
 		$keycols=null;
 		$invisible=null;
+		//$invisible[5] = 1;
 		$linkURLs[0] = 'reminders.php?mark_complete=';
 		$address_classes[0]='mark_reminder_complete';
 		$linkURLs[1] = 'edit_reminder.php?ID=';
@@ -199,7 +201,10 @@ if (isset($_SESSION['username'])) {
 		$table->defineRows($linkURLs,$keycols,$invisible,$address_classes,$linkTargets);
 		$table->start();
 		while ($result_row = $dds->getNextRow()){
-			$table->addRow($result_row);
+			$style='background-color: #a4f995; color: black';
+			if (strlen($result_row[4]) > 1 ) $style='background-color: #f5f9b1; color: black';
+			if ($result_row[5] == 1 ) $style='background-color: #f44d1f; color: white';
+			$table->addRow($result_row,$style); 
 		}
 		$table->finish();
 		
