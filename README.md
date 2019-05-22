@@ -3,7 +3,9 @@ Reminder management app (xAMP)
 
 Built on Hydrogen framework (clone the Hydrogen repository inside this project's htdocs folder and then add it to your .gitignore)
 
-Tested with Hydrogen v0.6
+Tested with Hydrogen v0.9
+
+Demo at http://www.janus-book.com/Cadence/
 
 ## Contents
 * the **htdocs** folder contains the PHP and image files to go in your web root
