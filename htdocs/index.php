@@ -12,7 +12,7 @@ include "Hydrogen/pgTemplate.php";
   <div class="w3-row w3-padding-64">
     <div class="w3-twothird w3-container">
       <h1 class="w3-text-black">About this application</h1>
-      <p>This is a simple reminder application not quite ready for its first release.</p>
+      <p>This is a simple stand-alone reminder application.</p>
     </div>
     <div class="w3-third w3-container">
 
