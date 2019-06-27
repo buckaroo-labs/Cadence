@@ -5,6 +5,7 @@ $headline = '<h1>Cadence</h1>' ;
 include "Hydrogen/pgTemplate.php";
 require_once 'Hydrogen/libDebug.php';
 require_once 'common.php';
+require_once 'clsDB.php';
 $this_page="view_reminder.php"
 ?>
 
@@ -24,20 +25,9 @@ if (isset($_SESSION['username'])) {
 	require_once 'Hydrogen/libFilter.php';
 	require_once 'Hydrogen/clsSQLBuilder.php';
 	
-/*	
-	foreach($_POST as $key => $value) {
-		if ($value <> "") {
-			echo ("<h4>" . $key . "=" . $value . "</h4>");
-		} else {
-			echo ("<p>" . $key . "=" . $value . "</p>");
-		}
-	}
-*/
 	if (isset($_POST['ID'])) include "post_reminder.php";
 	
 	//display the reminder as read-only
-	
-
 	if (isset($_GET['ID'])) $reminderID = (int)$_GET['ID'];
 
 	if ($reminderID=="new") {
@@ -46,27 +36,31 @@ if (isset($_SESSION['username'])) {
 		$where="id=" . $reminderID;
 	}
 
-	$result = $dds->setSQL("SELECT * FROM reminder WHERE  ". $where . " AND owner ='" . $_SESSION['username'] . "'");
+	$result = $dds->setSQL("SELECT * FROM " . DB::$reminder_table . " WHERE  ". $where . " AND owner ='" . $_SESSION['username'] . "'");
 	$remdata = $dds->getNextRow("labeled");
 
 	$startdatestr = date("Y-m-d",strtotime($remdata['start_date']));
 	$starttimestr = date("H:i",strtotime($remdata['start_date']));
 
 	$implementation_note=false;
-	//$output = "The reminder titled '" . $remdata['title'] . "' is set for " . $startdatestr . " at " . $starttimestr;
-	$output = "<table><tr><td>Title: </td><td>" . $remdata['title'] . "</td><tr>";
+	$output = "<table><tr><td>Title: </td><td>" . $remdata['summary'] . "</td><tr>";
 	$output .= "<tr><td>Start: </td><td>$startdatestr at $starttimestr</td><tr>";
 
 	if (isset($remdata['description'])) {
 		if (!is_null($remdata['description'])) {
-			$output .= "<tr><td>Description: </td><td>" . $remdata['description'] ."</td><tr>";	
+			$output .= "<tr><td>Notes: </td><td>" . $remdata['description'] ."</td><tr>";	
 		}
 	}
 	
+	if (isset($remdata['location'])) {
+		if (!is_null($remdata['location'])) {
+			$output .= "<tr><td>Location: </td><td>" . $remdata['location'] ."</td><tr>";	
+		}
+	}
 	
 	if (isset($remdata['category'])) {
 		if (!is_null($remdata['category'])) {
-			$output .= "<tr><td>Category: </td><td>" . $remdata['category'] ."</td><tr>";	
+			$output .= "<tr><td>Tags: </td><td>" . $remdata['category'] ."</td><tr>";	
 		}
 	}
 	
@@ -121,10 +115,9 @@ if (isset($_SESSION['username'])) {
 		}
 	}
 	
-
-	if (isset($remdata['notes'])) {
-		if (!is_null($remdata['notes'])) {
-			$output .= "<tr><td>Notes: </td><td>" . $remdata['notes'] ."</td><tr>";	
+	if (isset($remdata['url'])) {
+		if (!is_null($remdata['url'])) {
+			$output .= '<tr><td>URL: </td><td><a href="'. $remdata['url'] .'">' . $remdata['url'] ."</a></td><tr>";	
 		}
 	}
 

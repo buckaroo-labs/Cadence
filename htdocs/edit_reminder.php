@@ -4,7 +4,8 @@ $pagetitle="Reminders | Cadence";
 $headline = '<h1>Cadence</h1>' ;
 include "Hydrogen/pgTemplate.php";
 require_once 'Hydrogen/libDebug.php';
-
+require_once 'clsDB.php';
+//require_once 'Hydrogen/clsDataSource.php';
 ?>
 
 <!-- Main content: shift it to the right by 250 pixels when the sidebar is visible -->
@@ -12,7 +13,8 @@ require_once 'Hydrogen/libDebug.php';
 
 <?php 
 
-//unset these to remove the elements from the page, but include elemLogoHeadline to push the main section below the nav bar. Find a cleaner way of doing this later.
+//unset these to remove the elements from the page, but include elemLogoHeadline to 
+//  push the main section below the nav bar. Find a cleaner way of doing this later.
 unset ($logo_image);
 unset ($headline);
 include 'Hydrogen/elemLogoHeadline.php'; 
@@ -71,7 +73,7 @@ if (isset($_SESSION['username'])) {
 			$tod_end="23:59";
 		} else {
 			echo ('<h2>Edit reminder</h2>');
-			$result = $dds->setSQL("SELECT * FROM reminder WHERE id=" . $rem_id . " AND owner ='" . $_SESSION['username'] . "'");
+			$result = $dds->setSQL("SELECT * FROM " . DB::$reminder_table . " WHERE id=" . $rem_id . " AND owner ='" . $_SESSION['username'] . "'");
 			$remdata = $dds->getNextRow("labeled");
 			$startdatestr = date("Y-m-d",strtotime($remdata['start_date']));
 			$starttimestr = date("H:i",strtotime($remdata['start_date']));
@@ -82,6 +84,7 @@ if (isset($_SESSION['username'])) {
 				}
 			}
 			$priority = $remdata['priority'];
+			$calendar_id = $remdata['calendar_id'];
 			$recur_float = $remdata['recur_float'];
 			$recur_units = $remdata['recur_units'];
 			$recur_scale = $remdata['recur_scale'];
@@ -139,22 +142,25 @@ if (isset($_SESSION['username'])) {
 	<form class="w3-container" action="view_reminder.php" method="post">
 		<input name="ID" type="hidden" value="<?php echo($rem_id); ?>">
 		<input name="DIRTY" type="hidden" value="Y">
+		<?php 
+		if (!is_null($calendar_id)) echo'<input name="CALENDAR_ID" type="hidden" value="' . $calendar_id .'">';
+		?>
 		<p>
 			<label class="w3-text-red">Title (required)</label>
 			<!-- The UI max length should be several chars smaller than the database
 			to allow for HTML encoding e.g. "'" to "&rsquo;" -->
-			<input name="title" class="w3-input w3-border" type="text" maxlength="30" <?php if(!$new) echo ' value="' . $remdata['title'] . '"'; ?> required>
+			<input name="summary" class="w3-input w3-border" type="text" maxlength="30" <?php if(!$new) echo ' value="' . $remdata['summary'] . '"'; ?> required>
 		</p>
 		 
 		<div class="w3-container w3-cell-row">
 
 			<div id="StepOne"  class="w3-container w3-mobile w3-cell">
 				<p>
-					 <label>Description</label>
-					 <input name="description" class="w3-input w3-border" type="text" maxlength="255" <?php if(!$new) echo ' value="' . $remdata['description'] . '"'; ?> >
+					 <label>Location</label>
+					 <input name="location" class="w3-input w3-border" type="text" maxlength="255" <?php if(!$new) echo ' value="' . $remdata['location'] . '"'; ?> >
 				</p>
 				<p>
-					<label>Category</label>
+					<label>Tags (comma-separated)</label>
 					<input name="category" class="w3-input w3-border" type="text" maxlength="30"  <?php if(!$new) echo ' value="' . $remdata['category'] . '"'; ?> ></p>
 					<div id="StartDateAndTime" class="w3-container w3-card-4 w3-amber">
 						<p>
@@ -170,18 +176,25 @@ if (isset($_SESSION['username'])) {
 					<select name="priority" class=" w3-border" value="3" required>
 						<option value="1" <?php if ($priority==1)echo ' selected'; ?> >1 (highest)</option>
 						<option value="2" <?php if ($priority==2)echo ' selected'; ?> >2</option>
-						<option value="3" <?php if ($priority==3)echo ' selected'; ?> >3 (medium)</option>
+						<option value="3" <?php if ($priority==3)echo ' selected'; ?> >3</option>
 						<option value="4" <?php if ($priority==4)echo ' selected'; ?> >4</option>
-						<option value="5" <?php if ($priority==5)echo ' selected'; ?> >5 (lowest)</option>
+						<option value="5" <?php if ($priority==5)echo ' selected'; ?> >5 (medium)</option>
+						<option value="6" <?php if ($priority==6)echo ' selected'; ?> >6</option>
+						<option value="7" <?php if ($priority==7)echo ' selected'; ?> >7</option>
+						<option value="8" <?php if ($priority==8)echo ' selected'; ?> >8</option>
+						<option value="9" <?php if ($priority==9)echo ' selected'; ?> >9 (lowest)</option>						
 					</select>
 				</p>
-				  
+				<p>
+					 <label>URL</label>
+					 <input name="url" class="w3-input w3-border" type="text" maxlength="555" <?php if(!$new) echo ' value="' . $remdata['url'] . '"'; ?> >
+				</p>
 				<p>
 					<label>Notes</label><br>
 					<!-- <input name="note" class="w3-input w3-border" type="text"  > -->
 					<!-- thanks to https://www.studentstutorial.com/html/responsive-textarea -->
 					<div style="max-width: 750px; margin: 0px auto; margin-top: 20px;"><div style="width: 100%; height: auto; float:left" >
-					<textarea style="float: left; width: 100%;min-height: 75px;outline: none; resize: none;border: 1px solid grey;" name="notes" rows="8" cols="40" wrap="soft"> <?php if(!$new) echo  $remdata['notes'] ; ?> </textarea>
+					<textarea style="float: left; width: 100%;min-height: 75px;outline: none; resize: none;border: 1px solid grey;" name="description" rows="8" cols="40" wrap="soft"> <?php if(!$new) echo  str_replace('\n',"\n",$remdata['description']) ; ?> </textarea>
 					</div></div>
 				 </p>
 				 <br> 

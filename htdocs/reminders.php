@@ -2,6 +2,7 @@
 <?php 
 
 require_once 'common.php';
+require_once 'clsDB.php';
 $_SESSION['referring_page']=$_SERVER['REQUEST_URI'];
 require_login();
 
@@ -9,6 +10,7 @@ $pagetitle="Reminders | Cadence";
 $headline = '<h1>Cadence</h1>' ;
 include "Hydrogen/pgTemplate.php";
 require_once 'Hydrogen/libDebug.php';
+require_once 'clsReminder.php';
 require_once 'common.php';
 include_once 'settingsHydrogen.php';
 
@@ -45,8 +47,8 @@ function show_upcoming () {
 		SQL FOR UPCOMING REMINDERS
 		
 		*/
-		$sql = "select id as '(edit)', title as 'Title', date_format(start_date,'%M %D') as 'Start', date_format(due_date,'%M %D') as 'Due'";
-		$sql = $sql . "	from reminder where owner='" . $_SESSION['username'] . "' ";
+		$sql = "select id as '(edit)', summary as 'Title', date_format(start_date,'%M %D') as 'Start', date_format(due_date,'%M %D') as 'Due'";
+		$sql = $sql . "	from " . DB::$reminder_table . " where owner='" . $_SESSION['username'] . "' ";
 		$sql = $sql . " and ifnull(start_date,now()- interval 1 day) BETWEEN current_timestamp() and date_add(current_timestamp(), interval 90 day)  ";
 		//$sql = $sql . " and ifnull(snooze_date,now()- interval 1 day) > current_timestamp()";
 		
@@ -93,70 +95,10 @@ if (isset($_SESSION['username'])) {
 	require_once 'Hydrogen/libFilter.php';
 
 	if (isset($_GET['mark_complete'])) {
-		
-			//echo "<P>GET:" . $_GET['mark_complete'] . "</P>";
-			$markcomplete = (int)$_GET['mark_complete'];
+			Reminders::MarkComplete((int)$_GET['mark_complete'],true);
 			
-			//check first if there are any matching records. Ignore if none, because this will happen on page refresh or bookmark
-			$sql = "SELECT count(*) FROM reminder ";
-			$sql = $sql . " WHERE sequence=" . $markcomplete . " AND owner='" . $_SESSION['username'] . "' ";
-			$result = $dds->setSQL($sql);
-			$result_row = $dds->getNextRow();
-			if ($result_row[0] > 0) {
-				$sql = "SELECT id, recur_float, recur_scale, recur_units, start_date, grace_scale, grace_units, passive_scale, passive_units FROM reminder ";
-				$sql = $sql . " WHERE sequence=" . $markcomplete . " AND owner='" . $_SESSION['username'] . "' ";
-				$result = $dds->setSQL($sql);
-				$result_row = $dds->getNextRow("labeled");	
-				
-				$sql =  "UPDATE reminder SET complete_date='" . date("Y-m-d H:i:s") . "', ";
-				
-				//check for recurrence
-				if (!is_null($result_row['recur_units'])) {
-					debug("recurring task completed");
-					$recurscale = decode_scale($result_row['recur_scale']);
-					$gracescale = decode_scale($result_row['grace_scale']);
-					$passivescale = decode_scale($result_row['passive_scale']);
-					
-					if ($result_row['recur_float']==0) {
-						$initdate = strtotime($result_row['start_date']);
-						debug("recurrence set as fixed, with base date: " .$result_row['start_date']);
-					} else {
-						$initdate=time();
-						debug("recurrence set as floating");
-					}	
-					debug("recurrence will follow date:" . date("Y-m-d H:i:s",$initdate));
-					//Calculate the next correct start time	
-					debug("next start: " . "+" . $result_row['recur_units'] . " " . $recurscale);
-					$starttime = strtotime("+" . $result_row['recur_units'] . " " . $recurscale, $initdate );
-					//Format it for MySQL
-					$startdate = date("Y-m-d H:i:s",$starttime);
-					debug("next recurrence date:" . $startdate);
-					debug("next recurrence due: " . "+" . $result_row['grace_units'] . " " . $gracescale);
-					$duetime = strtotime("+" . $result_row['grace_units'] . " " . $gracescale,$starttime);
-					$duedate = date("Y-m-d H:i:s",$duetime);
-					debug("next recurrence due date:" . $duedate);
-					debug("next recurrence active: " . "+" . $result_row['passive_units'] . " " . $passivescale);
-					$activetime = strtotime("+" . $result_row['passive_units'] . " " . $passivescale,$starttime) ;
-					$activedate = date("Y-m-d H:i:s",$activetime);
-					debug("next recurrence active date:" . $activedate);
-					
-					$sql = $sql . " start_date='" . $startdate . "', ";				
-					$sql = $sql . " due_date='" . $duedate . "', ";	
-					$sql = $sql . " active_date='" . $activedate . "', ";	
-					debug($sql);
-					
-				} else {
-					//non-recurring reminder will be expired
-					$sql = $sql . " end_date='" . date("Y-m-d H:i:s",strtotime("-1 second")) . "', ";
-				}
-				$timestamp = (string) time();
-				$sql = $sql . " sequence=" . $result_row['id'] . '000' .  $timestamp . ", ";
-				$sql = $sql . " last_updated='" . date("Y-m-d H:i:s") . "' ";
-				$sql = $sql . " WHERE id=" . $result_row['id'] . " AND owner='" . $_SESSION['username'] . "' ";
-				//echo "<P>SQL:" . $sql . "</P>";
-				$result = $dds->setSQL($sql);
-			} //if count > 0
 	}
+	
 	
 	$timeofday = date("Hi");
 	$dayofyear = date("z");
@@ -172,9 +114,9 @@ if (isset($_SESSION['username'])) {
 		
 	*/
 	
-	$sql = "select sequence as '(check)', id as '(edit)', title as 'Title', date_format(start_date,'%M %D') as 'Start', date_format(due_date,'%M %D') as 'Due'";
+	$sql = "SELECT sequence as '(check)', id as '(edit)', summary as 'Title', date_format(start_date,'%M %D') as 'Start', date_format(due_date,'%M %D') as 'Due'";
 	$sql .= ", CASE WHEN due_date < NOW() THEN 1 ELSE 0 END as overdue ";
-	$sql = $sql . "	from reminder where owner='" . $_SESSION['username'] . "' ";
+	$sql = $sql . "	from " . DB::$reminder_table . " where owner='" . $_SESSION['username'] . "' ";
 	$sql = $sql . " and ifnull(start_date,now()- interval 1 day) < current_timestamp() ";
 	$sql = $sql . " and ifnull(snooze_date,now()- interval 1 day) < current_timestamp() ";
 	

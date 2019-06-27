@@ -1,6 +1,7 @@
 <?php
 require_once 'common.php';
-
+require_once 'clsCalDAV.php';
+require_once 'Hydrogen/clsDateTimeExt.php';
 //In theory, the SQLBuilder class will sanitize 
 //	all the POST variables used as column data
 
@@ -84,6 +85,7 @@ function calculate_duedate() {
 function calculate_alarms() {
 	global $sqlb;
 	global $startDate;
+	
 	$columns = array('passive_scale',					
 					'passive_units',
 					'alarm_interval_scale',
@@ -103,32 +105,33 @@ function calculate_alarms() {
 		$sqlb->addNullColumn("passive_units");
 	}
 	return 1;
-}		
-		
-if ($_POST['ID']=="new") {
-	$timestamp = (string) time();	
-	$sqlb = new SQLBuilder("INSERT");
-	$sqlb->setTableName("reminder");
+}	
+
+function common_post_proc() {
+	global $sqlb;
+	global $dds;
+	global $startDate;
 	$sqlb->addColumn("owner",$_SESSION['username']);
-	$sqlb->addColumn("sequence",$timestamp);
-	//process POST variables into sanitized SQL insert
+	
+	//process POST variables into sanitized SQL stmt
 	
 	//some are easy
-	$columns = array('title',
-					'description',
-					'notes',
-					'category',
+	$columns = array('summary',
 					'priority',
+					'url',
+					'location',					
+					'category',	
 					'snooze_scale',
 					'snooze_units'					
 					);
 	$sqlb->addVarColumns($columns);
 	
 	//others require more processing
+	$sqlb->addColumn("description",str_replace("\n",'\n',$_POST['description']));
 	
 	$startDateStr=$_POST['StartDate'] . " " . $_POST['StartTime'];
 	$sqlb->addColumn("start_date",$startDateStr);
-	$startDate= strtotime($startDateStr);
+	$startDate= strtotime($startDateStr);	
 	
 	//Recurrence
 	$columns = array('recur_scale','recur_units','recur_float');
@@ -146,54 +149,34 @@ if ($_POST['ID']=="new") {
 	//Cross your fingers
 	$SQL=$sqlb->getSQL();
 	$dds->setSQL($SQL);
-	//echo "<P>" . $SQL . "</P>";
+
+}	
+		
+if ($_POST['ID']=="new") {
+	$timestamp = (string) time();	
+	$sqlb = new SQLBuilder("INSERT");
+	$sqlb->setTableName(DB::$reminder_table);
+
+	$sqlb->addColumn("sequence",$timestamp);
+	$sqlb->addColumn("created",DateTimeExt::zdate());
+	$sqlb->addColumn("uid",CalDAV::uid());
+
+	common_post_proc();
+
 } else {
 //not "new"	
 	if (isset($_POST['DIRTY'])) {
 		$sqlb = new SQLBuilder("UPDATE");
-		$sqlb->setTableName("reminder");
-		//oops! this part is important:
+		$sqlb->setTableName(DB::$reminder_table);
 		$sqlb->addWhere("id='" .  (int) $_POST['ID']. "'");
 		$sqlb->addWhere("owner='" .  $_SESSION['username']. "'");
+		$sqlb->addColumn("last_modified",DateTimeExt::zdate());
+
+		common_post_proc();
 		
-		
-		$sqlb->addColumn("owner",$_SESSION['username']);
-		//process POST variables into sanitized SQL insert
-		
-		//some are easy
-		$columns = array('title',
-						'description',
-						'notes',
-						'category',
-						'priority',
-						'snooze_scale',
-						'snooze_units'					
-						);
-		$sqlb->addVarColumns($columns);
-		
-		//others require more processing
-		
-		$startDateStr=$_POST['StartDate'] . " " . $_POST['StartTime'];
-		$sqlb->addColumn("start_date",$startDateStr);
-		$startDate= strtotime($startDateStr);
-		
-		//Recurrence
-		$columns = array('recur_scale','recur_units','recur_float');
-		if (isset($_POST['Recurrence'])) {
-			if($_POST['Recurrence']=="RecurYN") $sqlb->addVarColumns($columns);
-		}
-		
-		$return=calculate_duedate();
-		$return=calculate_alarms();
-		$return=calculate_seasonality() ;
-		$return=calculate_blackout_hours();
-		$return=calculate_enddate();		
-		$return=calculate_weekdays();
-		
-		//Cross your fingers
-		$SQL=$sqlb->getSQL();
-		$dds->setSQL($SQL);
-		//echo "<P>" . $SQL . "</P>";
+		//Assumption for now is that any reminder having a calendar ID is part of a remote system
+		//Maybe later we will support multiple local calendars
+		if(isset($_POST['CALENDAR_ID'])) CalDAV::PushReminderUpdate($_POST['ID']);
 		
 	} //dirty
 
