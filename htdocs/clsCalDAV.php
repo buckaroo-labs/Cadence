@@ -70,7 +70,7 @@ class CalDAV {
 			debug ("LoadCalendarReminders: loading event: \n" . $event['data'] . "\n");
 			$j = $j + 1;
 			$parsed=CalDAV::parseEvent($event['data']);
-			$S=CalDAV::SQLBuilder($parsed);
+			$S=CalDAV::getSQLBuilder($parsed);
 			$S->addColumn("etag",$event['etag']);
 			//$S->addColumn("url",$event['href']);
 			$S->addColumn("calendar_id",$calendar_id);
