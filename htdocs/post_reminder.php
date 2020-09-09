@@ -160,8 +160,14 @@ if ($_POST['ID']=="new") {
 	$sqlb->addColumn("sequence",$timestamp);
 	$sqlb->addColumn("created",DateTimeExt::zdate());
 	$sqlb->addColumn("uid",CalDAV::uid());
-
+	if(isset($_POST['CALENDAR_ID'])) {
+		if($_POST['CALENDAR_ID']!=0)	$sqlb->addColumn("calendar_id",$_POST['CALENDAR_ID']);
+	}
 	common_post_proc();
+	$newID=$dds->getInt("select max(id) from " . DB::$reminder_table . " where owner='" .  $_SESSION['username'] . "'");
+	if(isset($_POST['CALENDAR_ID'])) {
+		if($_POST['CALENDAR_ID']!=0)	CalDAV::PushReminderUpdate($newID,true);
+	}
 
 } else {
 //not "new"	
@@ -171,13 +177,26 @@ if ($_POST['ID']=="new") {
 		$sqlb->addWhere("id='" .  (int) $_POST['ID']. "'");
 		$sqlb->addWhere("owner='" .  $_SESSION['username']. "'");
 		$sqlb->addColumn("last_modified",DateTimeExt::zdate());
-
+		if(isset($_POST['CALENDAR_ID'])) {
+			$tempID=$_POST['CALENDAR_ID'];
+			if($_POST['CALENDAR_ID']==0)	$tempID='null';
+			$sqlb->addColumn("calendar_id",$tempID);
+		}
 		common_post_proc();
 		
-		//Assumption for now is that any reminder having a calendar ID is part of a remote system
+		//For now, assumption is that any reminder having a (nonzero) calendar ID is part of a remote system
 		//Maybe later we will support multiple local calendars
-		if(isset($_POST['CALENDAR_ID'])) CalDAV::PushReminderUpdate($_POST['ID']);
-		
+		//Not sure how this will work if the calendar ID is edited   ... something to test
+		if(isset($_POST['CALENDAR_ID'])) {
+			if(isset($_POST['OLD_CALENDAR_ID'])) {
+				if($_POST['CALENDAR_ID']!=$_POST['OLD_CALENDAR_ID']) {
+					//Need to remove the item from the old calendar
+					CalDAV::DeleteReminderFromCalendar($_POST['ID'], $_POST['OLD_CALENDAR_ID']);
+				}
+			}
+			if($_POST['CALENDAR_ID']!=0)	CalDAV::PushReminderUpdate($_POST['ID'],true);
+
+		}
 	} //dirty
 
 

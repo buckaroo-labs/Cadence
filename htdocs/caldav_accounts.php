@@ -13,13 +13,19 @@ require_once 'caldav-client.php';
 /*
 
 This page has five use cases:
-1. GET (no "ID" set; or invalid ID for user) : Just show all existing accounts with test and edit buttons and a blank form to add another
-2. GET (?action=delete&ID= ): remove the account (and any associated calendars) if the ID belongs to the user and then show existing accounts and a blank form.
+1. GET (no "ID" set; or invalid ID for user) : Just show all existing accounts with test and edit buttons and a blank form to add another.
+		(incomplete:) Show CalDAV calendars.
+2. GET (?action=delete&ID= ): remove the account (and any associated calendars) if the ID belongs to the user and 
+		then show existing accounts and a blank form.
 3. GET (?ID=):  Edit an existing account (if the user owns it); prepopulate the form. If the user doesn't own the ID, ignore it.
-4. $_POST['DIRTY_ACCOUNT'] : Save a new or dirty record to the DB before showing existing accounts. Show the account in RED if connect failed, GREEN if OK. Show a blank form if record was updated; a list of calendars for the new account if one was added.
-5. $_POST['SELECT_CALENDARS'] : Save the calendar selections for the previous use case (, load the calendar data?), and then show a blank entry form.
+4. $_POST['DIRTY_ACCOUNT'] : Save a new or dirty record to the DB before showing existing accounts. 
+		Show the account in RED if connect failed, GREEN if OK. 
+		Show a blank form if record was updated; show a list of calendars for the new account if one was added.
+5. $_POST['SELECT_CALENDARS'] : Save the calendar selections for the previous use case, load the calendar data, and 
+		then show a blank entry form.
 
 */
+
 //These are being initialized. Their values may change as GET and POST variables are assessed.
 $new=true;
 $caldav_id="new";
@@ -29,7 +35,7 @@ $inserted="_none_";
 $message="";
 
 if (isset($_POST['SELECT_CALENDARS'])) {
-	
+	//Case 5
 	$arrlength = count($_POST);
 	for($x = 0; $x < $arrlength; $x++) {
 		if (isset($_POST['cal_checkbox'. $x])) {
@@ -70,7 +76,7 @@ if (isset($_POST['SELECT_CALENDARS'])) {
 }
 
 if (isset($_POST['DIRTY_ACCOUNT'])) {
-	
+	//Case 4
 	if ($_POST['ID']=="new") {
 		$sqlb = new SQLBuilder("INSERT");
 		$inserted=$_POST['alias'];
@@ -163,7 +169,7 @@ include 'Hydrogen/elemLogoHeadline.php';
 
 
 if (isset($_GET['ID'])) {
-	
+	//Case 2 or 3 (delete, edit)
 	$account_sql = "SELECT id, alias as Account, ruser as Username, rpassword as Password, rhost as Host, rport as Port from " . DB::$caldav_acct_table . " where owner='" . $_SESSION['username'] . "' ";
 	$account_sql = $account_sql . " and id=". (int) $_GET['ID'];
 	$result = $dds->setMaxRecs(1);
@@ -174,6 +180,7 @@ if (isset($_GET['ID'])) {
 		//set $caldav_id and set new=false if the ID is valid for this user and if $_GET['action'] != delete
 		if (isset($_GET['action'])) { 
 			if ($_GET['action']="delete") {
+				//Case 2
 				$delete="DELETE FROM " . DB::$caldav_cal_table . " where owner='" . $_SESSION['username'] . "' and remote_acct_id=". (int) $_GET['ID'];
 				$result = $dds->setSQL($delete);
 				$delete="DELETE FROM " . DB::$caldav_acct_table . " where owner='" . $_SESSION['username'] . "' and id=". (int) $_GET['ID'];
@@ -234,7 +241,39 @@ if (isset($_SESSION['username'])) {
 			$table->addRow($result_row,$style); 
 		}
 		$table->finish();
-		
+		$sql = "SELECT c.id,c.name,a.alias as 'Account' ,c.uid FROM " . DB::$caldav_cal_table ;
+		$sql .= " c inner join " . DB::$caldav_acct_table . " a on a.id=c.remote_acct_id ";
+		$sql .= " where c.owner='" . $_SESSION['username'] . "' ";
+		$sql .= " ORDER BY remote_acct_id";
+		//echo "<P>SQL:" . $sql . "</P>";
+		echo "<br>" . $message . "<br>";
+		$result = $dds->setMaxRecs(50);
+		$result = $dds->setSQL($sql);
+		$page_count = $dds->getPageCount();
+		if ($page_count>0) {
+			unset($address_classes);
+			unset($linkURLs);
+			unset($linkTargets);
+			unset($keycols);
+			unset($invisible);
+			unset($hide_headers);
+			$linkTargets=null;
+			$keycols=null;
+			$invisible=null;
+
+			echo "<H4>Calendars</h4>";
+			$table=new HTMLTable($dds->getFieldNames(),$dds->getFieldTypes());
+			$table->defineRows($linkURLs,$keycols,$invisible,$address_classes,$linkTargets,$hide_headers);
+			$table->start();
+			while ($result_row = $dds->getNextRow()){
+				$style='background-color: #ffffff; color: black';
+				if ($bad_connection and $result_row[1]==$inserted) $style='background-color: #FF0000; color: black';
+				if (!$bad_connection and $result_row[1]==$inserted) $style='background-color: #00FF00; color: black';
+				$table->addRow($result_row,$style); 
+			}
+			$table->finish();
+		}
+
 	} else {
 		echo '<h2>No CalDAV accounts configured.</h2>';	
 

@@ -47,7 +47,6 @@ function decode_scale_and_units ($scale_code, $units, $include_1=false) {
 
 function require_login () {
 	global $settings ;
-	include 'settingsHydrogen.php';
 	if (session_status() == PHP_SESSION_NONE) session_start(); 
 	//$_SESSION['referring_page']=$_SERVER['REQUEST_URI'];
 

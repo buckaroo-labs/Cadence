@@ -51,6 +51,20 @@ if (isset($_SESSION['username'])) {
 			$output .= "<tr><td>Notes: </td><td>" . $remdata['description'] ."</td><tr>";	
 		}
 	}
+
+	if (isset($remdata['calendar_id'])) {
+		$calendar_name='Default';
+		if (!is_null($remdata['calendar_id'])) {
+			//look up the name
+			$sql = "SELECT c.name,a.alias FROM " . DB::$caldav_cal_table ;
+			$sql .= " c inner join " . DB::$caldav_acct_table . " a on a.id=c.remote_acct_id ";
+			$sql .= " where c.id='" . $remdata['calendar_id'] . "' ";
+			$result=$dds->setSQL($sql);
+			$result_row=$dds->getNextRow();
+			$calendar_name=$result_row[0] . '('. $result_row[1] . ')';
+		}
+		$output .= "<tr><td>Calendar: </td><td>" . $calendar_name ."</td><tr>";	
+	}
 	
 	if (isset($remdata['location'])) {
 		if (!is_null($remdata['location'])) {
