@@ -19,6 +19,7 @@ require_once 'clsReminder.php';
 $(document).ready(function(){
   $(".mark_reminder_complete").html('<img src="images/checkbox.png" height="16">');
   $(".edit_reminder").html('<img src="images/edit.png" height="16">');
+  $(".delete_reminder").html('<img src="images/trash.png" height="16">');
 });
 
 
@@ -46,7 +47,7 @@ function show_upcoming () {
 		
 		*/
 		$sql = "select id as '(edit)', summary as 'Title', date_format(start_date,'%M %D') as 'Start', date_format(due_date,'%M %D') as 'Due'";
-		$sql = $sql . ",calendar_id	as 'Calendar' from " . DB::$reminder_table . " where owner='" . $_SESSION['username'] . "' ";
+		$sql = $sql . ",calendar_id	as 'Calendar' , id as '(delete)' from " . DB::$reminder_table . " where owner='" . $_SESSION['username'] . "' ";
 		$sql = $sql . " and ifnull(start_date,now()- interval 1 day) BETWEEN current_timestamp() and date_add(current_timestamp(), interval 90 day)  ";
 		//$sql = $sql . " and ifnull(snooze_date,now()- interval 1 day) > current_timestamp()";
 		
@@ -73,7 +74,9 @@ function show_upcoming () {
 			$link_targets=array();
 			$hide_headers[0] = 1;
 			$keycols[1] = 0;
-			$address_classes[0]='edit_reminder';			
+			$address_classes[0]='edit_reminder';	
+			$linkURLs[5] = 'reminders.php?delete=';
+			$address_classes[5]='delete_reminder';			
 			echo "<H3>Upcoming</h3>";
 			$table=new HTMLTable($dds->getFieldNames(),$dds->getFieldTypes());
 			$table->defineRows($linkURLs,$keycols,$invisible,$address_classes,$link_targets,$hide_headers);
@@ -96,7 +99,10 @@ if (isset($_SESSION['username'])) {
 			Reminders::MarkComplete((int)$_GET['mark_complete'],true);
 			
 	}
-	
+	if (isset($_GET['delete'])) {
+		Reminders::Delete((int)$_GET['delete'],true);
+		
+	}
 	
 	$timeofday = date("Hi");
 	$dayofyear = date("z");
@@ -114,7 +120,7 @@ if (isset($_SESSION['username'])) {
 	
 	$sql = "SELECT sequence as '(check)', id as '(edit)', summary as 'Title', date_format(start_date,'%M %D') as 'Start', date_format(due_date,'%M %D') as 'Due'";
 	$sql .= ", CASE WHEN due_date < NOW() THEN 1 ELSE 0 END as overdue ";
-	$sql = $sql . ",calendar_id as 'Calendar'	from " . DB::$reminder_table . " where owner='" . $_SESSION['username'] . "' ";
+	$sql = $sql . ",calendar_id as 'Calendar', id as '(delete)'	from " . DB::$reminder_table . " where owner='" . $_SESSION['username'] . "' ";
 	$sql = $sql . " and ifnull(start_date,now()- interval 1 day) < current_timestamp() ";
 	$sql = $sql . " and ifnull(snooze_date,now()- interval 1 day) < current_timestamp() ";
 	
@@ -148,6 +154,8 @@ if (isset($_SESSION['username'])) {
 		$address_classes[1]='edit_reminder';
 		$linkURLs[2] = 'view_reminder.php?ID=';
 		$keycols[2] = 1;
+		$linkURLs[7] = 'reminders.php?delete=';
+		$address_classes[7]='delete_reminder';		
 		$hide_headers[0]=1;
 		$hide_headers[1]=1;
 		$hide_headers[5]=1;		

@@ -7,7 +7,28 @@ class Reminders {
 		if ($mine) $sql .= " AND owner ='" . $_SESSION['username'] . "'";
 		return $sql;
 	}
-	
+	public static function Delete($id, $push=false, $owner="") {
+		global $dds;
+		require_once "common.php";
+		require_once "Hydrogen/libDebug.php";
+		require_once "Hydrogen/clsDateTimeExt.php";
+		require_once "clsCalDAV.php";
+		if ($owner!="") $sqlowner=$owner; 
+		if (isset($_SESSION['username'])) $sqlowner=$_SESSION['username'];
+
+		//check first if there are any matching records. Ignore if none, because this may happen with page refresh or bookmark
+		$sql = "SELECT calendar_id FROM " . DB::$reminder_table;
+		$sql = $sql . " WHERE id=" . $id . " AND owner='" . $sqlowner . "' ";
+		$result = $dds->setSQL($sql);
+		if ($result_row = $dds->getNextRow()) {
+			//Delete from CalDAV first (need to send eTag which is stored in DB)
+			if ($result_row[0]> 0) CalDAV::DeleteReminderFromCalendar($id, $result_row[0]);
+			//Delete from Database
+			$sql="delete FROM " . DB::$reminder_table;
+			$sql = $sql . " WHERE id=" . $id . " AND owner='" . $sqlowner . "' ";
+			$result = $dds->setSQL($sql);
+		}
+	}
 	public static function MarkComplete($sequence, $push=false, $owner="") {
 		$mark_complete=$sequence;
 		global $dds;

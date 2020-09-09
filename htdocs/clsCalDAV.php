@@ -35,7 +35,7 @@ class CalDAV {
 
 		$result=$dds->setSQL($rsql);
 		$rrow=$dds->getNextRow();
-		debug (__FILE__ . ": DeleteReminder: SQL=" . $sql);
+		debug (__FILE__ . ": DeleteReminder: SQL=" . $csql);
 		$dds->setSQL($csql);
 		debug (__FILE__ . ": DeleteReminder: SQL executed");
 		if ($result_row = $dds->getNextRow("labelled")) {
