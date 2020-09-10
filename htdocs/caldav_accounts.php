@@ -152,8 +152,10 @@ if ($inserted!="_none_") {
 $(document).ready(function(){
   $(".rm_caldav_acct").html('<img src="images/trash.png" height="24">');
   $(".edit_caldav_acct").html('<img src="images/edit.png" height="16">');
-});
+  $(".use_caldav_calendar").html('<img src="images/logo.png" height="16">');
+  });
 
+use_caldav_calendar
 
 </script>
 <!-- Main content: shift it to the right by 250 pixels when the sidebar is visible -->
@@ -241,7 +243,7 @@ if (isset($_SESSION['username'])) {
 			$table->addRow($result_row,$style); 
 		}
 		$table->finish();
-		$sql = "SELECT c.id,c.name,a.alias as 'Account' ,c.uid FROM " . DB::$caldav_cal_table ;
+		$sql = "SELECT c.id,c.name,a.alias as 'Account' ,c.uid, c.id as 'Migrate' FROM " . DB::$caldav_cal_table ;
 		$sql .= " c inner join " . DB::$caldav_acct_table . " a on a.id=c.remote_acct_id ";
 		$sql .= " where c.owner='" . $_SESSION['username'] . "' ";
 		$sql .= " ORDER BY remote_acct_id";
@@ -260,6 +262,11 @@ if (isset($_SESSION['username'])) {
 			$linkTargets=null;
 			$keycols=null;
 			$invisible=null;
+			$hide_headers=null;
+			$address_classes=array();
+			$linkURLs=array();
+			$linkURLs[4] = 'migrate.php?ID=';
+			$address_classes[4]='use_caldav_calendar';
 
 			echo "<H4>Calendars</h4>";
 			$table=new HTMLTable($dds->getFieldNames(),$dds->getFieldTypes());
