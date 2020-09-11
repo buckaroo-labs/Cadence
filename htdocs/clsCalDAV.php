@@ -17,6 +17,35 @@ class CalDAV {
 			CalDAV::PushReminderUpdate($keys[$i][0],true);
 		}
 	}
+	public static function DeleteReminderFromCalendar($id, $calendar_id){
+		//This is used when a reminder is moved from one calendar to another
+		global $dds;
+		require_once ("caldav-client.php");
+		require_once ("clsReminder.php");
+
+		$rsql="SELECT r.etag as etag, r.uid as rem_uid, r.owner as owner ";
+		$rsql.=" FROM " . DB::$reminder_table . " r ";
+		$rsql.=" WHERE r.id =" . $id	;
+
+		$csql="SELECT a.ruser as ruser, a.rpassword as rpassword, a.rhost as rhost, a.rport as rport, c.uid as cal_uid ";
+		$csql.=" FROM " . DB::$caldav_cal_table ." c" ;
+		$csql.=" INNER JOIN " . DB::$caldav_acct_table . " a ";
+		$csql.="	ON c.remote_acct_id = a.id";
+		$csql.=" WHERE c.id =" . $calendar_id	;
+
+		$result=$dds->setSQL($rsql);
+		$rrow=$dds->getNextRow();
+		debug (__FILE__ . ": DeleteReminder: SQL=" . $csql);
+		$dds->setSQL($csql);
+		debug (__FILE__ . ": DeleteReminder: SQL executed");
+		if ($result_row = $dds->getNextRow("labelled")) {
+			$uri="http://" . $result_row['rhost'] . ":" . $result_row['rport']. "/" . $result_row['ruser'] . "/";
+			$calDAVClient = new CalDAVClient( $uri, $result_row["ruser"], $result_row["rpassword"], "dummy" );
+			$resultCode= $calDAVClient->DoDELETERequest($result_row["cal_uid"] . "/" . $rrow[1] . ".ics", '"' .$rrow[0] . '"');
+			debug (__FILE__ . ": DeleteReminder: Data DELETED with return code of " . $resultCode);
+		} // else : this is not a reminder with a remote calendar
+	}
+		
 	
 	public static function PushReminderUpdate($id, $force=false){
 		global $dds;
@@ -60,7 +89,7 @@ class CalDAV {
 		
 	public static function LoadCalendarReminders($calDAVClient,$CalendarUID) {
 		global $dds;
-		//To be used synchronously with user logged in
+		//To be used synchronously with user logged in, when a CalDAV calendar is first added
 		$sql="SELECT id from " . DB::$caldav_cal_table . " WHERE uid='" . $CalendarUID . "'";
 		$dds->setSQL($sql);
 		if ($result_row=$dds->GetNextRow()) $calendar_id=$result_row[0];
@@ -151,18 +180,22 @@ class CalDAV {
 									debug("PullCalendarUpdates: 			SQL builder instantiated");
 									$S->addColumn("owner",$owners[$x][0]);
 									$S->addColumn("sequence",(string) rand(0,1000000000));
+									//2020-09-09 moved this line to be specific for insert and not also for update
+									$S->addColumn("calendar_id",$dbcalendars[$z]['id']);
 								} else {
 									//UPDATE
 									$updating = true;
 									debug("PullCalendarUpdates: 			building SQL to update reminder \n" . $event . "\n");
 									$S=CalDAV::getSQLBuilder($parsed,"UPDATE",false);
 									$S->addWhere("id",$result_row[0]);
+									//2020-09-09 added this line so that updates won't be applied to a task moved to a different cal.
+									$S->addWhere("calendar_id",$dbcalendars[$z]['id']);
 								}
 								$S->addColumn("etag",$etags[$j]['etag']);
 								//$S->addColumn("url",$etags[$j]['href']);
 								
 								
-								$S->addColumn("calendar_id",$dbcalendars[$z]['id']);
+								
 								debug("PullCalendarUpdates: 			SQL built");
 								$sql=$S->getSQL();
 								debug("PullCalendarUpdates: 			SQL:" . $sql);

@@ -6,7 +6,7 @@ CREATE TABLE cadence_reminder (
 `summary` VARCHAR(60) NOT NULL COMMENT 'title, e.g. feed cat', 
 `location` VARCHAR(255) NULL  COMMENT 'free format', 
 `url` VARCHAR(255) NULL COMMENT 'Any link useful for this reminder', 
-`category` VARCHAR(2000) NULL COMMENT 'comma-separated list of tags', 
+`category` VARCHAR(500) NULL COMMENT 'comma-separated list of tags', 
 `calendar_id` int NULL COMMENT 'foreign key ref to calendar table; blank=default-internal', 
 `description` TEXT NULL  COMMENT 'Notes', 
 `priority` INT NULL  , 
@@ -36,10 +36,10 @@ CREATE TABLE cadence_reminder (
 `last_modified` VARCHAR(25) NULL COMMENT 'date of last change to this record (as CalDAV string, GMT)', 
 `prodid` VARCHAR(300) NULL  COMMENT 'used for CalDAV', 
 `uid` VARCHAR(60) NULL  COMMENT 'used for CalDAV', 
-`etag` VARCHAR(60) NULL  COMMENT 'used for CalDAV', 
+`etag` VARCHAR(120) NULL  COMMENT 'used for CalDAV', 
 `sequence` BIGINT NOT NULL  COMMENT 'used for preventing duplicate updates on page refresh', 
 `created` VARCHAR(25) NULL COMMENT 'date created (as CalDAV string, GMT)', 
-`caldav_hidden` VARCHAR(40960) NULL COMMENT 'unused CalDAV data', 
+`caldav_hidden` VARCHAR(10240) NULL COMMENT 'unused CalDAV data', 
 PRIMARY KEY (`id`), 
 UNIQUE KEY(`UID`),
 UNIQUE KEY(`sequence`),
@@ -54,7 +54,7 @@ INDEX `c_reminder_active_date_indx` (`active_date`)
 );
 
 
-create table `user` (
+create table `users` (
 `id` INT NOT NULL AUTO_INCREMENT , 
 `username` VARCHAR(30) NOT NULL  ,
 `email` VARCHAR(30) NOT NULL  ,
@@ -91,7 +91,7 @@ PRIMARY KEY (`id`)
 );
 
 --test/foo
-insert into cadence_user(username,email,first_name,last_name,password) VALUES ('Test','y@x.com','John','Doe','$2y$10$JA6W8MpTPLlwt4nXg7yJKeZYF15L3qmFDXJ42hKBc9fHWmBKKzxv6');
+insert into users(username,email,first_name,last_name,password) VALUES ('Test','y@x.com','John','Doe','$2y$10$JA6W8MpTPLlwt4nXg7yJKeZYF15L3qmFDXJ42hKBc9fHWmBKKzxv6');
 
 
 

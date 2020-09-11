@@ -5,7 +5,7 @@ $headline = '<h1>Cadence</h1>' ;
 include "Hydrogen/pgTemplate.php";
 require_once 'Hydrogen/libDebug.php';
 require_once 'clsDB.php';
-//require_once 'Hydrogen/clsDataSource.php';
+
 ?>
 
 <!-- Main content: shift it to the right by 250 pixels when the sidebar is visible -->
@@ -71,6 +71,7 @@ if (isset($_SESSION['username'])) {
 			$season_end="365";
 			$tod_start="00:00";
 			$tod_end="23:59";
+			$calendar_id=0;
 		} else {
 			echo ('<h2>Edit reminder</h2>');
 			$result = $dds->setSQL("SELECT * FROM " . DB::$reminder_table . " WHERE id=" . $rem_id . " AND owner ='" . $_SESSION['username'] . "'");
@@ -143,7 +144,7 @@ if (isset($_SESSION['username'])) {
 		<input name="ID" type="hidden" value="<?php echo($rem_id); ?>">
 		<input name="DIRTY" type="hidden" value="Y">
 		<?php 
-		if (!is_null($calendar_id)) echo'<input name="CALENDAR_ID" type="hidden" value="' . $calendar_id .'">';
+		if (!is_null($calendar_id)) echo'<input name="OLD_CALENDAR_ID" type="hidden" value="' . $calendar_id .'">';
 		?>
 		<p>
 			<label class="w3-text-red">Title (required)</label>
@@ -155,6 +156,29 @@ if (isset($_SESSION['username'])) {
 		<div class="w3-container w3-cell-row">
 
 			<div id="StepOne"  class="w3-container w3-mobile w3-cell">
+				<p>
+					 <label>Calendar</label>
+					 <select name="CALENDAR_ID" class="w3-input w3-border" >
+					 	<option value="0">Default</option>
+					 	<?php
+						 		$sql = "SELECT c.id,c.name,a.alias FROM " . DB::$caldav_cal_table ;
+								 $sql .= " c inner join " . DB::$caldav_acct_table . " a on a.id=c.remote_acct_id ";
+								 $sql .= " where c.owner='" . $_SESSION['username'] . "' ";
+								 $sql .= " ORDER BY c.name";
+								 $result = $dds->setSQL($sql);
+								 while ($result_row = $dds->getNextRow()){
+									 $selectLabel=$result_row[1] .' ('. $result_row[2] . ')';
+									 if ($result_row[0]==$calendar_id ) {
+										 echo '<option value="' . $result_row[0] . '"  selected>' . $selectLabel . '</option>';
+									} else {
+										 echo '<option value="' . $result_row[0] . '">' . $selectLabel . '</option>';
+									 }
+
+								}
+
+						?>
+					 </select>
+				</p>
 				<p>
 					 <label>Location</label>
 					 <input name="location" class="w3-input w3-border" type="text" maxlength="255" <?php if(!$new) echo ' value="' . $remdata['location'] . '"'; ?> >

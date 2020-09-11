@@ -14,7 +14,7 @@ $sidebar_links[0]=array("name"=>"Reminders","href"=>"reminders.php","class"=>"w3
 $sidebar_links[1]=array("name"=>"New Reminder","href"=>"edit_reminder.php?ID=new","class"=>"w3-hover-black");
 $sidebar_links[2]=array("name"=>"Demo","href"=>"demo.php","class"=>"w3-hide-large w3-hide-medium w3-hover-white");
 //$sidebar_links[3]=array("name"=>"Lists","href"=>"calendars.php","class"=>"w3-hover-black");
-$sidebar_links[3]=array("name"=>"CalDAV","href"=>"caldav_accounts.php","class"=>"w3-hover-black");
+$sidebar_links[3]=array("name"=>"CalDAV Setup","href"=>"caldav_accounts.php","class"=>"w3-hover-black");
 
 $footer_text="VERSION 2.0 DRAFT // This page was generated at " . date("Y-m-d H:i:s");
 
